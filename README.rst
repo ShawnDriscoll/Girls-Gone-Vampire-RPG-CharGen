@@ -58,6 +58,7 @@ Things To-Do
 | Cheat codes.
 |ss|
 
+| Make a GGV module.
 | EXE version needs to save PDFs.
 | Move PDF character sheets closer to program folder.
 | Add Encumbrance rules from Rocket Cadets in the 11th Dimension!
@@ -72,9 +73,9 @@ Things To-Do
   Initial release.
 
 
-The Expedition to Ancient Aegypt RPG was written by R. Joshua Holland.
-Copyright 2021 - 2022, Total Party Skills.
-https://www.drivethrurpg.com/product/371713/Expedition-to-Ancient-Aegypt
+Girls Gone Vampire RPG was written by R. Joshua Holland.
+Copyright 2023, Total Party Skills.
+https://www.drivethrurpg.com/product/443514/GiRLS-GONE-VAMPiRE
 
 
 Contact
