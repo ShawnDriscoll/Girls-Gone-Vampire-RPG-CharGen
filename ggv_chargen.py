@@ -188,7 +188,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.weaponDisplay.setPlainText('None')
         self.starting_items = 'None'
         self.itemsDisplay.setPlainText(self.starting_items)
-        self.specialDisplay.setPlainText('None')
+        self.specialDisplay.setPlainText('')
         self.traitsDisplay.setPlainText('')
         self.backstoryDisplay.setPlainText('')
         self.notesDisplay.setPlainText('')
@@ -232,7 +232,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.is_psionic = False
         self.is_vampire = 'No'
 
-        self.char_level = 1
+        self.char_level = 0
         self.levelDisplay.setText(str(self.char_level))
 
         self.char_xp = 0
@@ -668,7 +668,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.psychokinesisSkill.setDisabled(True)
         self.telepathySkill.setDisabled(True)
 
-        self.char_level = 1
+        self.char_level = 0
         self.levelDisplay.setText(str(self.char_level))
         self.xpEdit.setDisabled(True)
         self.char_xp = 0
@@ -709,7 +709,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.armorDisplay.setPlainText('None')
         self.weaponDisplay.setPlainText('None')
         self.itemsDisplay.setPlainText('None')
-        self.specialDisplay.setPlainText('None')
+        self.specialDisplay.setPlainText('')
         self.traitsDisplay.setPlainText('')
         self.backstoryDisplay.setPlainText('')
         self.notesDisplay.setPlainText('')
@@ -4926,6 +4926,169 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.actionPrint.setDisabled(True)
                 self.level_achieved = 5000
                 self.next_level = 10000
+            elif self.level_achieved == 5000:
+                if self.specialDisplay.toPlainText() == '':
+                    self.specialDisplay.setPlainText('+1 Action per Turn')
+                else:
+                    self.specialDisplay.setPlainText(self.specialDisplay.toPlainText() + '\n+1 Action per Turn')
+                self.level_achieved = 10000
+                self.next_level = 20000
+            elif self.level_achieved == 10000:
+                self.additional_skill_points = 4
+                self.additional2Display.setText(str(self.additional_skill_points))
+                self.skilling_up = True
+                self.skillCap = 5
+                self.agilitySkill.setMaximum(self.skillCap)
+                self.beautySkill.setMaximum(self.skillCap)
+                self.strengthSkill.setMaximum(self.skillCap)
+                self.knowledgeSkill.setMaximum(self.skillCap)
+                self.perceptionSkill.setMaximum(self.skillCap)
+                self.technologySkill.setMaximum(self.skillCap)
+                self.charismaSkill.setMaximum(self.skillCap)
+                self.empathySkill.setMaximum(self.skillCap)
+                self.focusSkill.setMaximum(self.skillCap)
+                self.boxingSkill.setMaximum(self.skillCap)
+                self.meleeSkill.setMaximum(self.skillCap)
+                self.rangedSkill.setMaximum(self.skillCap)
+                self.artSkill.setMaximum(self.skillCap)
+                self.languagesSkill.setMaximum(self.skillCap)
+                self.scienceSkill.setMaximum(self.skillCap)
+                self.dodgeSkill.setMaximum(self.skillCap)
+                self.parrySkill.setMaximum(self.skillCap)
+                self.strikeSkill.setMaximum(self.skillCap)
+                self.blessSkill.setMaximum(self.skillCap)
+                self.exorcismSkill.setMaximum(self.skillCap)
+                self.healingSkill.setMaximum(self.skillCap)
+                self.demonologySkill.setMaximum(self.skillCap)
+                self.metamorphosisSkill.setMaximum(self.skillCap)
+                self.necromancySkill.setMaximum(self.skillCap)
+                self.psychokinesisSkill.setMaximum(self.skillCap)
+                self.clairvoyanceSkill.setMaximum(self.skillCap)
+                self.telepathySkill.setMaximum(self.skillCap)
+                self.agilitySkill.setDisabled(False)
+                self.beautySkill.setDisabled(False)
+                self.strengthSkill.setDisabled(False)
+                self.knowledgeSkill.setDisabled(False)
+                self.perceptionSkill.setDisabled(False)
+                self.technologySkill.setDisabled(False)
+                self.charismaSkill.setDisabled(False)
+                self.empathySkill.setDisabled(False)
+                self.focusSkill.setDisabled(False)
+                self.boxingSkill.setDisabled(False)
+                self.meleeSkill.setDisabled(False)
+                self.rangedSkill.setDisabled(False)
+                self.artSkill.setDisabled(False)
+                self.languagesSkill.setDisabled(False)
+                self.scienceSkill.setDisabled(False)
+                if self.is_martial:
+                    self.dodgeSkill.setDisabled(False)
+                    self.parrySkill.setDisabled(False)
+                    self.strikeSkill.setDisabled(False)
+                if self.is_divine:
+                    self.blessSkill.setDisabled(False)
+                    self.exorcismSkill.setDisabled(False)
+                    self.healingSkill.setDisabled(False)
+                if self.is_occult:
+                    self.demonologySkill.setDisabled(False)
+                    self.metamorphosisSkill.setDisabled(False)
+                    self.necromancySkill.setDisabled(False)
+                if self.is_psionic:
+                    self.clairvoyanceSkill.setDisabled(False)
+                    self.psychokinesisSkill.setDisabled(False)
+                    self.telepathySkill.setDisabled(False)
+                self.xpEdit.setDisabled(True)
+                self.saveButton.setDisabled(True)
+                self.actionSave.setDisabled(True)
+                self.printButton.setDisabled(True)
+                self.actionPrint.setDisabled(True)
+                self.level_achieved = 20000
+                self.next_level = 50000
+            elif self.level_achieved == 20000:
+                self.additional_attribute_points = 1
+                self.additional1Display.setText(str(self.additional_attribute_points))
+                self.attributing_up = True
+                self.scoreCap = 5
+                self.bodyScore.setMaximum(self.scoreCap)
+                self.mindScore.setMaximum(self.scoreCap)
+                self.spiritScore.setMaximum(self.scoreCap)
+                self.bodyScore.setDisabled(False)
+                self.mindScore.setDisabled(False)
+                self.spiritScore.setDisabled(False)
+                self.xpEdit.setDisabled(True)
+                self.saveButton.setDisabled(True)
+                self.actionSave.setDisabled(True)
+                self.printButton.setDisabled(True)
+                self.actionPrint.setDisabled(True)
+                self.level_achieved = 50000
+                self.next_level = 100000
+            elif self.level_achieved == 50000:
+                self.additional_skill_points = 5
+                self.additional2Display.setText(str(self.additional_skill_points))
+                self.skilling_up = True
+                self.skillCap = 5
+                self.agilitySkill.setMaximum(self.skillCap)
+                self.beautySkill.setMaximum(self.skillCap)
+                self.strengthSkill.setMaximum(self.skillCap)
+                self.knowledgeSkill.setMaximum(self.skillCap)
+                self.perceptionSkill.setMaximum(self.skillCap)
+                self.technologySkill.setMaximum(self.skillCap)
+                self.charismaSkill.setMaximum(self.skillCap)
+                self.empathySkill.setMaximum(self.skillCap)
+                self.focusSkill.setMaximum(self.skillCap)
+                self.boxingSkill.setMaximum(self.skillCap)
+                self.meleeSkill.setMaximum(self.skillCap)
+                self.rangedSkill.setMaximum(self.skillCap)
+                self.artSkill.setMaximum(self.skillCap)
+                self.languagesSkill.setMaximum(self.skillCap)
+                self.scienceSkill.setMaximum(self.skillCap)
+                self.dodgeSkill.setMaximum(self.skillCap)
+                self.parrySkill.setMaximum(self.skillCap)
+                self.strikeSkill.setMaximum(self.skillCap)
+                self.blessSkill.setMaximum(self.skillCap)
+                self.exorcismSkill.setMaximum(self.skillCap)
+                self.healingSkill.setMaximum(self.skillCap)
+                self.demonologySkill.setMaximum(self.skillCap)
+                self.metamorphosisSkill.setMaximum(self.skillCap)
+                self.necromancySkill.setMaximum(self.skillCap)
+                self.psychokinesisSkill.setMaximum(self.skillCap)
+                self.clairvoyanceSkill.setMaximum(self.skillCap)
+                self.telepathySkill.setMaximum(self.skillCap)
+                self.agilitySkill.setDisabled(False)
+                self.beautySkill.setDisabled(False)
+                self.strengthSkill.setDisabled(False)
+                self.knowledgeSkill.setDisabled(False)
+                self.perceptionSkill.setDisabled(False)
+                self.technologySkill.setDisabled(False)
+                self.charismaSkill.setDisabled(False)
+                self.empathySkill.setDisabled(False)
+                self.focusSkill.setDisabled(False)
+                self.boxingSkill.setDisabled(False)
+                self.meleeSkill.setDisabled(False)
+                self.rangedSkill.setDisabled(False)
+                self.artSkill.setDisabled(False)
+                self.languagesSkill.setDisabled(False)
+                self.scienceSkill.setDisabled(False)
+                if self.is_martial:
+                    self.dodgeSkill.setDisabled(False)
+                    self.parrySkill.setDisabled(False)
+                    self.strikeSkill.setDisabled(False)
+                if self.is_divine:
+                    self.blessSkill.setDisabled(False)
+                    self.exorcismSkill.setDisabled(False)
+                    self.healingSkill.setDisabled(False)
+                if self.is_occult:
+                    self.demonologySkill.setDisabled(False)
+                    self.metamorphosisSkill.setDisabled(False)
+                    self.necromancySkill.setDisabled(False)
+                if self.is_psionic:
+                    self.clairvoyanceSkill.setDisabled(False)
+                    self.psychokinesisSkill.setDisabled(False)
+                    self.telepathySkill.setDisabled(False)
+                self.xpEdit.setDisabled(True)
+                self.saveButton.setDisabled(True)
+                self.actionSave.setDisabled(True)
+                self.printButton.setDisabled(True)
+                self.actionPrint.setDisabled(True)
             
         print('Next XP level:', self.level_achieved, '    Skilling up:', self.skilling_up, '    Attributing up:', self.attributing_up)
     
