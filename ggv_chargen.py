@@ -879,6 +879,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -1011,6 +1035,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -1145,6 +1193,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -1276,6 +1348,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -1407,6 +1503,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -1538,6 +1658,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -1669,6 +1813,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -1800,6 +1968,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -1931,6 +2123,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -2062,6 +2278,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -2193,6 +2433,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -2324,6 +2588,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -2455,6 +2743,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -2586,6 +2898,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -2717,6 +3053,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -2848,6 +3208,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -2979,6 +3363,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -3110,6 +3518,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -3241,6 +3673,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -3372,6 +3828,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -3503,6 +3983,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -3634,6 +4138,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -3765,6 +4293,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -3896,6 +4448,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -4027,6 +4603,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -4158,6 +4758,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -4289,6 +4913,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.artSkill.setDisabled(False)
                         self.languagesSkill.setDisabled(False)
                         self.scienceSkill.setDisabled(False)
+                        if self.dodgeSkill.value() == 0:
+                            self.dodgeSkill.setDisabled(True)
+                        if self.parrySkill.value() == 0:
+                            self.parrySkill.setDisabled(True)
+                        if self.strikeSkill.value() == 0:
+                            self.strikeSkill.setDisabled(True)
+                        if self.blessSkill.value() == 0:
+                            self.blessSkill.setDisabled(True)
+                        if self.exorcismSkill.value() == 0:
+                            self.exorcismSkill.setDisabled(True)
+                        if self.healingSkill.value() == 0:
+                            self.healingSkill.setDisabled(True)
+                        if self.demonologySkill.value() == 0:
+                            self.demonologySkill.setDisabled(True)
+                        if self.metamorphosisSkill.value() == 0:
+                            self.metamorphosisSkill.setDisabled(True)
+                        if self.necromancySkill.value() == 0:
+                            self.necromancySkill.setDisabled(True)
+                        if self.clairvoyanceSkill.value() == 0:
+                            self.clairvoyanceSkill.setDisabled(True)
+                        if self.psychokinesisSkill.value() == 0:
+                            self.psychokinesisSkill.setDisabled(True)
+                        if self.telepathySkill.value() == 0:
+                            self.telepathySkill.setDisabled(True)
                     else:
                         self.agilitySkill.setDisabled(True)
                         self.beautySkill.setDisabled(True)
@@ -5239,6 +5887,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.languagesSkill.setDisabled(True)
                 self.scienceSkill.setValue(self.char_data['Science'])
                 self.scienceSkill.setDisabled(True)
+                self.dodgeSkill.setValue(self.char_data['Dodge'])
+                self.dodgeSkill.setDisabled(True)
+                self.parrySkill.setValue(self.char_data['Parry'])
+                self.parrySkill.setDisabled(True)
+                self.strikeSkill.setValue(self.char_data['Strike'])
+                self.strikeSkill.setDisabled(True)
                 self.blessSkill.setValue(self.char_data['Bless'])
                 self.blessSkill.setDisabled(True)
                 self.exorcismSkill.setValue(self.char_data['Exorcism'])
@@ -5338,6 +5992,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.char_data['Is_Martial'] = self.is_martial
             self.char_data['Is_Divine'] = self.is_divine
             self.char_data['Is_Occult'] = self.is_occult
+            if self.clairvoyanceSkill.value() > 0 or self.psychokinesisSkill.value() > 0 or self.telepathySkill.value() > 0:
+                self.is_psionic = True
             self.char_data['Is_Psionic'] = self.is_psionic
             self.char_data['Is_Vampire'] = self.is_vampire
             self.char_data['Encumbered'] = self.encumbered_flag
@@ -5593,7 +6249,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pdf.cell(txt='SPECIAL:')
         pdf.ln()
         pdf.set_font('Times New Roman', '', 14)
-        pdf.cell(txt=self.specialDisplay.toPlainText())
+        some_text = self.specialDisplay.toPlainText()
+        some_text = some_text.split()
+        while len(some_text) > 0:
+            some_words = ''
+            if len(some_text) > 12:
+                for i in range(12):
+                    some_words += some_text[i] + ' '
+                pdf.cell(txt=some_words)
+                pdf.ln()
+                some_text = some_text[12:]
+            else:
+                for i in range(len(some_text)):
+                    some_words += some_text[i] + ' '
+                pdf.cell(txt=some_words)
+                pdf.ln()
+                some_text = ''
         pdf.ln()
         pdf.add_page()
         pdf.set_font('Times New Roman', '', 10)
