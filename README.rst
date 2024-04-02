@@ -38,27 +38,10 @@ Requirements
 Things To-Do
 ------------
 
-.. |ss| raw:: html
-
-    <strike>
-
-.. |se| raw:: html
-
-    </strike>
-
 | Continue unifying the skills across all TPS genres.
 | Instruction manual.
 | Cheat codes.
 
-|ss|
-
-| Make a GGV module.
-| End support for EXE binaries.
-| Move PDF character sheets closer to program folder.
-| Add Encumbrance rules from Rocket Cadets in the 11th Dimension!
-| Start on a To-Do.
-
-|se|
 
 Known History
 -------------
