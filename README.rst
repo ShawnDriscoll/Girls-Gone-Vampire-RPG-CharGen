@@ -35,6 +35,8 @@ Requirements
 
   Fpdf2 is needed for printing the character sheets.
 
+Things To-Do
+------------
 
 .. |ss| raw:: html
 
@@ -43,9 +45,6 @@ Requirements
 .. |se| raw:: html
 
     </strike>
-
-Things To-Do
-------------
 
 | Continue unifying the skills across all TPS genres.
 | Instruction manual.
