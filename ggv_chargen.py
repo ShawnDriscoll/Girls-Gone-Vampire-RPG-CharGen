@@ -4,7 +4,7 @@
 #######################################################
 
 """
-GGV Chargen 0.0.1 Beta
+GGV Chargen 0.1.0 Beta
 -----------------------------------------------------------------------
 
 This program generates characters for the Girls Gone Vampire RPG.
@@ -23,15 +23,16 @@ import os
 import logging
 import json
 from fpdf import FPDF
+from game_tools.pydice import roll
 
 __author__ = 'Shawn Driscoll <shawndriscoll@hotmail.com>\nshawndriscoll.blogspot.com'
-__app__ = 'GGV CharGen 0.0.1 (Beta)'
+__app__ = 'GGV CharGen 0.1.0 (Beta)'
 __expired_tag__ = False
 
 class aboutDialog(QDialog, Ui_aboutDialog):
     def __init__(self):
         '''
-        Open the About dialog window
+        Open the About dialog window.
         '''
         super().__init__()
         log.info('PyQt5 aboutDialog initializing...')
@@ -42,7 +43,7 @@ class aboutDialog(QDialog, Ui_aboutDialog):
         
     def acceptOKButtonClicked(self):
         '''
-        Close the About dialog window
+        Close the About dialog window.
         '''
         log.info('PyQt5 aboutDialog closing...')
         self.close()
@@ -50,7 +51,7 @@ class aboutDialog(QDialog, Ui_aboutDialog):
 class alertDialog(QDialog, Ui_alertDialog):
     def __init__(self):
         '''
-        Open the Alert dialog window
+        Open the Alert dialog window.
         '''
         super().__init__()
         log.info('PyQt5 alertDialog initializing...')
@@ -61,7 +62,7 @@ class alertDialog(QDialog, Ui_alertDialog):
         
     def acceptOKButtonClicked(self):
         '''
-        Close the Alert dialog window
+        Close the Alert dialog window.
         '''
         log.info('PyQt5 alertDialog closing...')
         self.close()
@@ -69,7 +70,7 @@ class alertDialog(QDialog, Ui_alertDialog):
 class saveDialog(QDialog, Ui_saveDialog):
     def __init__(self):
         '''
-        Open the Save dialog window
+        Open the Save dialog window.
         '''
         super().__init__()
         log.info('PyQt5 saveDialog initializing...')
@@ -81,7 +82,7 @@ class saveDialog(QDialog, Ui_saveDialog):
 
     def acceptOKButtonClicked(self):
         '''
-        Close the Save dialog window
+        Close the Save dialog window.
         '''
         log.info('PyQt5 saveDialog closing...')
         self.close()
@@ -178,12 +179,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.psychokinesisSkill.valueChanged.connect(self.psychokinesisSkill_valueChanged)
         self.telepathySkill.valueChanged.connect(self.telepathySkill_valueChanged)
 
+        self.vampire_chargen = False
+        self.vampire_flag = False
         self.encumbered_checkBox.setDisabled(True)
+        self.vampire_checkBox.setDisabled(True)
         self.charnameEdit.setText('Sample Char')
         self.rewardDisplay.setText('None')
         self.encumbered_flag = False
         self.encumbered_checkBox.toggled.connect(self.encumbered_checkBox_changed)
         self.encumbered_checkBox.setChecked(self.encumbered_flag)
+        self.vampire_checkBox.toggled.connect(self.vampire_checkBox_changed)
+        self.vampire_checkBox.setChecked(self.vampire_flag)
         self.armorDisplay.setPlainText('None')
         self.weaponDisplay.setPlainText('None')
         self.starting_items = 'None'
@@ -192,6 +198,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.traitsDisplay.setPlainText('')
         self.backstoryDisplay.setPlainText('')
         self.notesDisplay.setPlainText('')
+        self.vampireLabel.setText('')
 
         self.gender_choice = ['Choose', 'Male', 'Female']
         for i in self.gender_choice:
@@ -222,15 +229,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.gender_not_chosen = True
         self.cult_not_chosen = True
         self.role_not_chosen = True
+        self.choosing_extra_2_psionics_skills = False
         self.choosing_extra_8_skills = False
         self.cover_not_chosen = True
         self.skilling_up = False
-        self.attributing_up = False
         self.is_martial = False
         self.is_divine = False
         self.is_occult = False
         self.is_psionic = False
-        self.is_vampire = 'No'
+        self.vampire_flag = False
+        self.loading_character = False
+        self.clearing_character = False
+        self.civ_mode = False
+        
+        self.enc = 1
+        self.mov = 1
+        self.ran = 1
 
         self.char_level = 0
         self.levelDisplay.setText(str(self.char_level))
@@ -279,7 +293,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.game_name = 'Girls Gone Vampire'
         self.char_folder = 'Girls Gone Vampire Characters'
         self.file_extension = '.tps'
-        self.file_format = 3.2
+        self.file_format = 3.3
 
         # Set the About menu item
         self.popAboutDialog = aboutDialog()
@@ -299,7 +313,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             log.warning(__app__ + ' expiration detected...')
             self.alert_window()
             '''
-            display alert message and disable all the things
+            Display alert message and disable all the things.
             '''
             self.clearButton.setDisabled(True)
             self.actionClear.setDisabled(True)
@@ -362,6 +376,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.backstoryDisplay.setDisabled(True)
             self.notesDisplay.setDisabled(True)
             self.encumbered_checkBox.setDisabled(True)
+            self.vampire_checkBox.setDisabled(True)
         else:
             '''
             Create .tpsrpg folder and tps.ini file the first time this program is run.
@@ -482,16 +497,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     #   Initialize Movement and Range
 
-        self.encumbranceDisplay.setText(str(1 + self.bodyScore.value() + self.strengthSkill.value()) + ' items')
-        self.movementDisplay.setText(str(1 + self.bodyScore.value() + self.agilitySkill.value()) + ' spaces')
-        self.rangeDisplay.setText(str(1 + self.bodyScore.value() + self.strengthSkill.value()) + ' miles')
+        self.encumbranceDisplay.setText(str(self.enc + self.bodyScore.value() + self.strengthSkill.value()) + ' items')
+        self.movementDisplay.setText(str(self.mov + self.bodyScore.value() + self.agilitySkill.value()) + ' spaces')
+        self.rangeDisplay.setText(str(self.ran + self.bodyScore.value() + self.strengthSkill.value()) + ' miles')
+        self.flightDisplay.setText('')
 
     def encumbered_checkBox_changed(self):
+        '''
+        Toggle encumbrance with the checkbox.
+        '''
         self.encumbered_flag = self.encumbered_checkBox.isChecked()
         red_flag = False
-        temp_encumbrance = 1 + self.bodyScore.value() + self.strengthSkill.value()
-        temp_movement = 1 + self.bodyScore.value() + self.agilitySkill.value()
-        temp_range = 1 + self.bodyScore.value() + self.strengthSkill.value()
+        temp_encumbrance = self.enc + self.bodyScore.value() + self.strengthSkill.value()
+        temp_movement = self.mov + self.bodyScore.value() + self.agilitySkill.value()
+        temp_range = self.ran + self.bodyScore.value() + self.strengthSkill.value()
         if int(self.healthDisplay.text()) > 1 and not self.encumbered_flag:
             log.debug('Character can move fine.')
         elif int(self.healthDisplay.text()) == 1:
@@ -520,13 +539,807 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.movementDisplay.setText(str(temp_movement) + ' spaces')
             self.rangeDisplay.setText(str(temp_range) + ' miles')
+        if self.vampire_flag == True and self.cult == 'Boeotian Club' and self.psychokinesisSkill.value() > 0:
+            self.flightDisplay.setText(str(self.spiritScore.value() + self.psychokinesisSkill.value()))
+        else:
+            self.flightDisplay.setText('')
+    
+    def vampire_checkBox_changed(self):
+        '''
+        Turn character into a vampire.
+        '''
+        if self.clearing_character == False:
+            if self.loading_character == False:
+                self.vampire_flag = True
+                self.vampire_checkBox.setDisabled(True)
+                if self.cult == 'Boeotian Club':
+                    log.info('Turn character into a psychic vampire.')
+                    self.attribute_score[0] = self.bodyScore.value()
+                    self.attribute_score[1] = 2
+                    self.attribute_score[2] = 4
+                    self.status_level = [2, 2, 2]
+                    self.scoreCap = 5
+                    self.char_level = 0
+                    self.bodyScore.setMaximum(self.scoreCap)
+                    self.mindScore.setMaximum(self.scoreCap)
+                    self.spiritScore.setMaximum(self.scoreCap)
+                    self.bodyScore.setValue(self.attribute_score[self.body])
+                    self.mindScore.setValue(self.attribute_score[self.mind])
+                    self.spiritScore.setValue(self.attribute_score[self.spirit])
+                    self.tempbodyScore = self.bodyScore.value()
+                    self.tempmindScore = self.mindScore.value()
+                    self.tempspiritScore = self.spiritScore.value()
+
+                    self.healthDisplay.setText(str(self.status_level[self.health] + self.attribute_score[self.body]))
+                    self.sanityDisplay.setText(str(self.status_level[self.sanity] + self.attribute_score[self.mind]))
+                    self.moraleDisplay.setText(str(self.status_level[self.morale] + self.attribute_score[self.spirit]))
+                    
+                    self.skillCap = 3
+
+                    self.agilitySkill.setMaximum(self.skillCap)
+                    self.beautySkill.setMaximum(self.skillCap)
+                    self.strengthSkill.setMaximum(self.skillCap)
+                    self.knowledgeSkill.setMaximum(self.skillCap)
+                    self.perceptionSkill.setMaximum(self.skillCap)
+                    self.technologySkill.setMaximum(self.skillCap)
+                    self.charismaSkill.setMaximum(self.skillCap)
+                    self.empathySkill.setMaximum(self.skillCap)
+                    self.focusSkill.setMaximum(self.skillCap)
+                    self.boxingSkill.setMaximum(self.skillCap)
+                    self.meleeSkill.setMaximum(self.skillCap)
+                    self.rangedSkill.setMaximum(self.skillCap)
+                    self.artSkill.setMaximum(self.skillCap)
+                    self.languagesSkill.setMaximum(self.skillCap)
+                    self.scienceSkill.setMaximum(self.skillCap)
+                    self.dodgeSkill.setMaximum(self.skillCap)
+                    self.parrySkill.setMaximum(self.skillCap)
+                    self.strikeSkill.setMaximum(self.skillCap)
+                    self.blessSkill.setMaximum(0)
+                    self.exorcismSkill.setMaximum(0)
+                    self.healingSkill.setMaximum(0)
+                    self.demonologySkill.setMaximum(self.skillCap)
+                    self.metamorphosisSkill.setMaximum(3)
+                    self.necromancySkill.setMaximum(3)
+                    self.clairvoyanceSkill.setMaximum(4)
+                    self.psychokinesisSkill.setMaximum(4)
+                    self.telepathySkill.setMaximum(4)
+
+                    self.agilitySkill.setValue(1)
+                    self.beautySkill.setValue(3)
+                    self.strengthSkill.setValue(1)
+                    self.knowledgeSkill.setValue(1)
+                    self.perceptionSkill.setValue(1)
+                    self.technologySkill.setValue(0)
+                    self.charismaSkill.setValue(1)
+                    self.empathySkill.setValue(1)
+                    self.focusSkill.setValue(1)
+                    self.boxingSkill.setValue(0)
+                    self.meleeSkill.setValue(0)
+                    self.rangedSkill.setValue(0)
+                    self.artSkill.setValue(1)
+                    self.languagesSkill.setValue(1)
+                    self.scienceSkill.setValue(0)
+                    self.dodgeSkill.setValue(0)
+                    self.parrySkill.setValue(0)
+                    self.strikeSkill.setValue(0)
+                    self.blessSkill.setValue(0)
+                    self.exorcismSkill.setValue(0)
+                    self.healingSkill.setValue(0)
+                    self.demonologySkill.setValue(0)
+                    self.metamorphosisSkill.setValue(0)
+                    self.necromancySkill.setValue(0)
+                    self.clairvoyanceSkill.setValue(1)
+                    self.psychokinesisSkill.setValue(1)
+                    self.telepathySkill.setValue(1)
+
+                    self.tempagilitySkill = self.agilitySkill.value()
+                    self.tempbeautySkill = self.beautySkill.value()
+                    self.tempstrengthSkill = self.strengthSkill.value()
+                    self.tempknowledgeSkill = self.knowledgeSkill.value()
+                    self.tempperceptionSkill = self.perceptionSkill.value()
+                    self.temptechnologySkill = self.technologySkill.value()
+                    self.tempcharismaSkill = self.charismaSkill.value()
+                    self.tempempathySkill = self.empathySkill.value()
+                    self.tempfocusSkill = self.focusSkill.value()
+                    self.tempboxingSkill = self.boxingSkill.value()
+                    self.tempmeleeSkill = self.meleeSkill.value()
+                    self.temprangedSkill = self.rangedSkill.value()
+                    self.tempartSkill = self.artSkill.value()
+                    self.templanguagesSkill = self.languagesSkill.value()
+                    self.tempscienceSkill = self.scienceSkill.value()
+                    self.tempdodgeSkill = self.dodgeSkill.value()
+                    self.tempparrySkill = self.parrySkill.value()
+                    self.tempstrikeSkill = self.strikeSkill.value()
+                    self.tempblessSkill = self.blessSkill.value()
+                    self.tempexorcismSkill = self.exorcismSkill.value()
+                    self.temphealingSkill = self.healingSkill.value()
+                    self.tempdemonologySkill = self.demonologySkill.value()
+                    self.tempmetamorphosisSkill = self.metamorphosisSkill.value()
+                    self.tempnecromancySkill = self.necromancySkill.value()
+                    self.tempclairvoyanceSkill = self.clairvoyanceSkill.value()
+                    self.temppsychokinesisSkill = self.psychokinesisSkill.value()
+                    self.temptelepathySkill = self.telepathySkill.value()
+
+                    #self.deptBox.setCurrentIndex(0)
+
+                    self.skilling_up = False
+                    self.is_martial = False
+                    self.is_divine = False
+                    self.is_occult = False
+                    self.is_psionic = True
+
+                    self.agilitySkill.setDisabled(True)
+                    self.beautySkill.setDisabled(True)
+                    self.strengthSkill.setDisabled(True)
+                    self.knowledgeSkill.setDisabled(True)
+                    self.perceptionSkill.setDisabled(True)
+                    self.technologySkill.setDisabled(True)
+                    self.charismaSkill.setDisabled(True)
+                    self.empathySkill.setDisabled(True)
+                    self.focusSkill.setDisabled(True)
+                    self.boxingSkill.setDisabled(True)
+                    self.meleeSkill.setDisabled(True)
+                    self.rangedSkill.setDisabled(True)
+                    self.artSkill.setDisabled(True)
+                    self.languagesSkill.setDisabled(True)
+                    self.scienceSkill.setDisabled(True)
+                    self.dodgeSkill.setDisabled(True)
+                    self.parrySkill.setDisabled(True)
+                    self.strikeSkill.setDisabled(True)
+                    self.blessSkill.setDisabled(True)
+                    self.exorcismSkill.setDisabled(True)
+                    self.healingSkill.setDisabled(True)
+                    self.demonologySkill.setDisabled(True)
+                    self.metamorphosisSkill.setDisabled(True)
+                    self.necromancySkill.setDisabled(True)
+                    self.clairvoyanceSkill.setDisabled(False)
+                    self.psychokinesisSkill.setDisabled(False)
+                    self.telepathySkill.setDisabled(False)
+
+                    self.char_level = 0
+                    self.levelDisplay.setText(str(self.char_level))
+                    self.xpEdit.setDisabled(True)
+                    self.char_xp = 0
+                    self.xpEdit.setText(str(self.char_xp))
+                    self.level_achieved = 100
+                    self.next_level = 200
+
+                    self.rewardDisplay.setText(str(self.agilitySkill.value() + self.beautySkill.value() + self.strengthSkill.value() +
+                        self.knowledgeSkill.value() + self.perceptionSkill.value() + self.technologySkill.value() +
+                        self.charismaSkill.value() + self.empathySkill.value() + self.focusSkill.value() +
+                        self.boxingSkill.value() + self.meleeSkill.value() + self.rangedSkill.value() +
+                        self.artSkill.value() + self.languagesSkill.value() + self.scienceSkill.value() +
+                        self.dodgeSkill.value() + self.parrySkill.value() + self.strikeSkill.value() +
+                        self.blessSkill.value() + self.exorcismSkill.value() + self.healingSkill.value() +
+                        self.demonologySkill.value() + self.metamorphosisSkill.value() + self.necromancySkill.value() +
+                        self.clairvoyanceSkill.value() + self.psychokinesisSkill.value() + self.telepathySkill.value()) + 'xp')
+                    
+                    self.enc = 3
+                    self.mov = 2
+                    self.ran = 5
+
+                    self.encumbered_checkBox.setDisabled(True)
+                    self.encumbered_flag = False
+                    self.encumbered_checkBox.setChecked(self.encumbered_flag)
+                    
+                    # self.clearing_character = True
+                    # self.vampire_checkBox.setDisabled(True)
+                    # self.vampire_checkBox.setChecked(self.vampire_flag)
+                    # self.clearing_character = False
+                    # self.charnameEdit.setText('Sample Char')
+                    # self.charnameEdit.setDisabled(False)
+                    # self.ageEdit.setText('')
+                    # self.ageEdit.setDisabled(False)
+                    # self.genderBox.setCurrentIndex(0)
+                    # self.genderBox.setDisabled(False)
+                    # self.gender = ''
+                    #self.gender_not_chosen = False
+                    # self.cultBox.clear()
+                    # self.cultBox.addItem('Choose')
+                    #self.cult_not_chosen = False
+                    # self.cultBox.setCurrentIndex(0)
+                    # self.cultBox.setDisabled(True)
+                    #self.role_not_chosen = False
+                    # self.roleBox.setCurrentIndex(0)
+                    # self.roleBox.setDisabled(True)
+                    # self.choosing_extra_8_skills = False
+                    #self.cover_not_chosen = False
+                    # self.coverBox.setCurrentIndex(0)
+                    # self.coverBox.setDisabled(True)
+                    # self.rewardDisplay.setText('None')
+                    self.healthStatus.setText('')
+                    self.sanityStatus.setText('')
+                    self.moraleStatus.setText('')
+                    # self.bodyScore.setDisabled(True)
+                    # self.mindScore.setDisabled(True)
+                    # self.spiritScore.setDisabled(True)
+                    # self.armorDisplay.setPlainText('None')
+                    # self.weaponDisplay.setPlainText('None')
+                    # self.itemsDisplay.setPlainText('None')
+                    # self.specialDisplay.setPlainText('')
+                    # self.traitsDisplay.setPlainText('')
+                    # self.backstoryDisplay.setPlainText('')
+                    # self.notesDisplay.setPlainText('')
+
+                    # self.additional_attribute_points = 4
+                    # self.additional1Display.setText(str(self.additional_attribute_points))
+                    # self.bodyScore.setDisabled(False)
+                    # self.mindScore.setDisabled(False)
+                    # self.spiritScore.setDisabled(False)
+                    self.additional1Display.setText('')
+
+                    self.vampire_chargen = True
+                    #self.roleBox.setCurrentIndex(0)
+                    #self.coverBox.setCurrentIndex(0)
+
+                    self.roleBox.clear()
+                    self.role_choice = ['Choose', 'Aspirational', 'Intellectual', 'Personable', 'Undefeated', 'Tutorial', 'Cryptic', 'Oracular', 'Mystical']
+                    self.role_skill = ['', 'Body', 'Mind', 'Spirit', 'Combat', 'Strange', 'Martial', 'Psionics', 'Occult']
+                    self.role_item = ['', 'Kit of Choice', 'Nice Watch', 'Flask', 'Pistol', 'Briefcase', 'Sword', 'Tarot Cards', 'Ceremonial Robes', 'Grimoire (blank)']
+                    for i in self.role_choice:
+                        self.roleBox.addItem(i)
+                    self.roleBox.setCurrentIndex(0)
+
+                    self.coverBox.clear()
+                    self.cover_choice = ['Choose', 'Dancer', 'Model', 'Teacher', 'Critic', 'Radio D. J.', 'Lawyer', 'Author', 'Wrestler', 'Fencer', 'Archer', 'Producer', 'Historian', 'Inventor', 'Gambler', 'Spy', 'Stage Magician']
+                    self.cover_bonus = ['', 'Agility', 'Beauty', 'Knowledge', 'Perception', 'Technology', 'Charisma', 'Empathy', 'Boxing', 'Melee', 'Ranged', 'Art', 'Languages', 'Science', 'Clairvoyance', 'Telepathy', 'Psychokinesis']
+                    self.cover_clothes = ['', 'Cheap Suit', 'Fashionable Clothing', 'Track Suit', 'Cheap Suit', 'Plain Clothes', 'Denim Outfit', 'Fashionable Clothing', 'Nice Suit', 'Uniform', 'Dark Clothes', 'Plain Clothes', 'Uniform', 'Fashionable Clothes', 'Uniform', 'Dark Clothes', 'Uniform', 'Fashionable Clothing', 'Nice Suit', 'Medical Uniform', 'Beatnik Outfit']
+                    for i in self.cover_choice:
+                        self.coverBox.addItem(i)
+                    self.coverBox.setCurrentIndex(0)
+
+                    self.gender_not_chosen = False
+                    self.cult_not_chosen = False
+                    self.role_not_chosen = False
+                    self.choosing_extra_8_skills = True
+                    self.cover_not_chosen = False
+                    self.skilling_up = False
+
+                    #self.roleBox.setDisabled(False)
+
+                    self.additional_skill_points = 2
+                    self.additional2Display.setText('')
+                    self.choosing_extra_2_psionics_skills = True
+                if self.cult == 'Hantu Belian' and self.gender == 'Female':
+                    log.info('Turn character into a were-cat.')
+                    self.attribute_score[0] = self.bodyScore.value()
+                    self.attribute_score[1] = 3
+                    self.attribute_score[2] = 3
+                    self.status_level = [2, 2, 2]
+                    self.scoreCap = 5
+                    self.char_level = 0
+                    self.bodyScore.setMaximum(self.scoreCap)
+                    self.mindScore.setMaximum(self.scoreCap)
+                    self.spiritScore.setMaximum(self.scoreCap)
+                    self.bodyScore.setValue(self.attribute_score[self.body])
+                    self.mindScore.setValue(self.attribute_score[self.mind])
+                    self.spiritScore.setValue(self.attribute_score[self.spirit])
+                    self.tempbodyScore = self.bodyScore.value()
+                    self.tempmindScore = self.mindScore.value()
+                    self.tempspiritScore = self.spiritScore.value()
+
+                    self.healthDisplay.setText(str(self.status_level[self.health] + self.attribute_score[self.body]))
+                    self.sanityDisplay.setText(str(self.status_level[self.sanity] + self.attribute_score[self.mind]))
+                    self.moraleDisplay.setText(str(self.status_level[self.morale] + self.attribute_score[self.spirit]))
+                    
+                    self.skillCap = 3
+
+                    self.agilitySkill.setMaximum(self.skillCap)
+                    self.beautySkill.setMaximum(self.skillCap)
+                    self.strengthSkill.setMaximum(self.skillCap)
+                    self.knowledgeSkill.setMaximum(self.skillCap)
+                    self.perceptionSkill.setMaximum(self.skillCap)
+                    self.technologySkill.setMaximum(self.skillCap)
+                    self.charismaSkill.setMaximum(self.skillCap)
+                    self.empathySkill.setMaximum(self.skillCap)
+                    self.focusSkill.setMaximum(self.skillCap)
+                    self.boxingSkill.setMaximum(self.skillCap)
+                    self.meleeSkill.setMaximum(self.skillCap)
+                    self.rangedSkill.setMaximum(self.skillCap)
+                    self.artSkill.setMaximum(self.skillCap)
+                    self.languagesSkill.setMaximum(self.skillCap)
+                    self.scienceSkill.setMaximum(self.skillCap)
+                    self.dodgeSkill.setMaximum(self.skillCap)
+                    self.parrySkill.setMaximum(self.skillCap)
+                    self.strikeSkill.setMaximum(self.skillCap)
+                    self.blessSkill.setMaximum(self.skillCap)
+                    self.exorcismSkill.setMaximum(self.skillCap)
+                    self.healingSkill.setMaximum(self.skillCap)
+                    self.demonologySkill.setMaximum(3)
+                    self.metamorphosisSkill.setMaximum(self.skillCap)
+                    self.necromancySkill.setMaximum(3)
+                    self.clairvoyanceSkill.setMaximum(4)
+                    self.psychokinesisSkill.setMaximum(4)
+                    self.telepathySkill.setMaximum(4)
+
+                    self.agilitySkill.setValue(3)
+                    self.beautySkill.setValue(1)
+                    self.strengthSkill.setValue(0)
+                    self.knowledgeSkill.setValue(0)
+                    self.perceptionSkill.setValue(3)
+                    self.technologySkill.setValue(0)
+                    self.charismaSkill.setValue(1)
+                    self.empathySkill.setValue(0)
+                    self.focusSkill.setValue(2)
+                    self.boxingSkill.setValue(1)
+                    self.meleeSkill.setValue(0)
+                    self.rangedSkill.setValue(0)
+                    self.artSkill.setValue(0)
+                    self.languagesSkill.setValue(0)
+                    self.scienceSkill.setValue(0)
+                    self.dodgeSkill.setValue(0)
+                    self.parrySkill.setValue(0)
+                    self.strikeSkill.setValue(0)
+                    self.blessSkill.setValue(0)
+                    self.exorcismSkill.setValue(0)
+                    self.healingSkill.setValue(0)
+                    self.demonologySkill.setValue(2)
+                    self.metamorphosisSkill.setValue(1)
+                    self.necromancySkill.setValue(0)
+                    self.clairvoyanceSkill.setValue(0)
+                    self.psychokinesisSkill.setValue(0)
+                    self.telepathySkill.setValue(1)
+
+                    self.tempagilitySkill = self.agilitySkill.value()
+                    self.tempbeautySkill = self.beautySkill.value()
+                    self.tempstrengthSkill = self.strengthSkill.value()
+                    self.tempknowledgeSkill = self.knowledgeSkill.value()
+                    self.tempperceptionSkill = self.perceptionSkill.value()
+                    self.temptechnologySkill = self.technologySkill.value()
+                    self.tempcharismaSkill = self.charismaSkill.value()
+                    self.tempempathySkill = self.empathySkill.value()
+                    self.tempfocusSkill = self.focusSkill.value()
+                    self.tempboxingSkill = self.boxingSkill.value()
+                    self.tempmeleeSkill = self.meleeSkill.value()
+                    self.temprangedSkill = self.rangedSkill.value()
+                    self.tempartSkill = self.artSkill.value()
+                    self.templanguagesSkill = self.languagesSkill.value()
+                    self.tempscienceSkill = self.scienceSkill.value()
+                    self.tempdodgeSkill = self.dodgeSkill.value()
+                    self.tempparrySkill = self.parrySkill.value()
+                    self.tempstrikeSkill = self.strikeSkill.value()
+                    self.tempblessSkill = self.blessSkill.value()
+                    self.tempexorcismSkill = self.exorcismSkill.value()
+                    self.temphealingSkill = self.healingSkill.value()
+                    self.tempdemonologySkill = self.demonologySkill.value()
+                    self.tempmetamorphosisSkill = self.metamorphosisSkill.value()
+                    self.tempnecromancySkill = self.necromancySkill.value()
+                    self.tempclairvoyanceSkill = self.clairvoyanceSkill.value()
+                    self.temppsychokinesisSkill = self.psychokinesisSkill.value()
+                    self.temptelepathySkill = self.telepathySkill.value()
+
+                    #self.deptBox.setCurrentIndex(0)
+
+                    self.skilling_up = False
+                    self.is_martial = False
+                    self.is_divine = False
+                    self.is_occult = False
+                    self.is_psionic = True
+
+                    self.agilitySkill.setDisabled(True)
+                    self.beautySkill.setDisabled(True)
+                    self.strengthSkill.setDisabled(True)
+                    self.knowledgeSkill.setDisabled(True)
+                    self.perceptionSkill.setDisabled(True)
+                    self.technologySkill.setDisabled(True)
+                    self.charismaSkill.setDisabled(True)
+                    self.empathySkill.setDisabled(True)
+                    self.focusSkill.setDisabled(True)
+                    self.boxingSkill.setDisabled(True)
+                    self.meleeSkill.setDisabled(True)
+                    self.rangedSkill.setDisabled(True)
+                    self.artSkill.setDisabled(True)
+                    self.languagesSkill.setDisabled(True)
+                    self.scienceSkill.setDisabled(True)
+                    self.dodgeSkill.setDisabled(True)
+                    self.parrySkill.setDisabled(True)
+                    self.strikeSkill.setDisabled(True)
+                    self.blessSkill.setDisabled(True)
+                    self.exorcismSkill.setDisabled(True)
+                    self.healingSkill.setDisabled(True)
+                    self.demonologySkill.setDisabled(True)
+                    self.metamorphosisSkill.setDisabled(True)
+                    self.necromancySkill.setDisabled(True)
+                    self.clairvoyanceSkill.setDisabled(False)
+                    self.psychokinesisSkill.setDisabled(False)
+                    self.telepathySkill.setDisabled(False)
+
+                    self.char_level = 0
+                    self.levelDisplay.setText(str(self.char_level))
+                    self.xpEdit.setDisabled(True)
+                    self.char_xp = 0
+                    self.xpEdit.setText(str(self.char_xp))
+                    self.level_achieved = 100
+                    self.next_level = 200
+
+                    self.rewardDisplay.setText(str(self.agilitySkill.value() + self.beautySkill.value() + self.strengthSkill.value() +
+                        self.knowledgeSkill.value() + self.perceptionSkill.value() + self.technologySkill.value() +
+                        self.charismaSkill.value() + self.empathySkill.value() + self.focusSkill.value() +
+                        self.boxingSkill.value() + self.meleeSkill.value() + self.rangedSkill.value() +
+                        self.artSkill.value() + self.languagesSkill.value() + self.scienceSkill.value() +
+                        self.dodgeSkill.value() + self.parrySkill.value() + self.strikeSkill.value() +
+                        self.blessSkill.value() + self.exorcismSkill.value() + self.healingSkill.value() +
+                        self.demonologySkill.value() + self.metamorphosisSkill.value() + self.necromancySkill.value() +
+                        self.clairvoyanceSkill.value() + self.psychokinesisSkill.value() + self.telepathySkill.value()) + 'xp')
+                    
+                    self.enc = 1
+                    self.mov = 1
+                    self.ran = 1
+
+                    self.encumbered_checkBox.setDisabled(True)
+                    self.encumbered_flag = False
+                    self.encumbered_checkBox.setChecked(self.encumbered_flag)
+                    
+                    # self.clearing_character = True
+                    # self.vampire_checkBox.setDisabled(True)
+                    # self.vampire_checkBox.setChecked(self.vampire_flag)
+                    # self.clearing_character = False
+                    # self.charnameEdit.setText('Sample Char')
+                    # self.charnameEdit.setDisabled(False)
+                    # self.ageEdit.setText('')
+                    # self.ageEdit.setDisabled(False)
+                    # self.genderBox.setCurrentIndex(0)
+                    # self.genderBox.setDisabled(False)
+                    # self.gender = ''
+                    #self.gender_not_chosen = False
+                    # self.cultBox.clear()
+                    # self.cultBox.addItem('Choose')
+                    #self.cult_not_chosen = False
+                    # self.cultBox.setCurrentIndex(0)
+                    # self.cultBox.setDisabled(True)
+                    #self.role_not_chosen = False
+                    # self.roleBox.setCurrentIndex(0)
+                    # self.roleBox.setDisabled(True)
+                    # self.choosing_extra_8_skills = False
+                    #self.cover_not_chosen = False
+                    # self.coverBox.setCurrentIndex(0)
+                    # self.coverBox.setDisabled(True)
+                    # self.rewardDisplay.setText('None')
+                    self.healthStatus.setText('')
+                    self.sanityStatus.setText('')
+                    self.moraleStatus.setText('')
+                    # self.bodyScore.setDisabled(True)
+                    # self.mindScore.setDisabled(True)
+                    # self.spiritScore.setDisabled(True)
+                    # self.armorDisplay.setPlainText('None')
+                    # self.weaponDisplay.setPlainText('None')
+                    # self.itemsDisplay.setPlainText('None')
+                    # self.specialDisplay.setPlainText('')
+                    # self.traitsDisplay.setPlainText('')
+                    # self.backstoryDisplay.setPlainText('')
+                    # self.notesDisplay.setPlainText('')
+
+                    # self.additional_attribute_points = 4
+                    # self.additional1Display.setText(str(self.additional_attribute_points))
+                    # self.bodyScore.setDisabled(False)
+                    # self.mindScore.setDisabled(False)
+                    # self.spiritScore.setDisabled(False)
+                    self.additional1Display.setText('')
+
+                    self.vampire_chargen = True
+                    #self.roleBox.setCurrentIndex(0)
+                    #self.coverBox.setCurrentIndex(0)
+
+                    self.roleBox.clear()
+                    self.role_choice = ['Choose', 'Prowler', 'Scout', 'Seducer', 'Ranger', 'Scholar', 'Acrobat', 'Hypnotist', 'Cleric']
+                    self.role_skill = ['', 'Body', 'Mind', 'Spirit', 'Combat', 'Strange', 'Martial', 'Psionics', 'Divine']
+                    self.role_item = ['', 'Kit of Choice', 'Nice Watch', 'Flask', 'Pistol', 'Briefcase', 'Sword', 'Tarot Cards', 'Ceremonial Robes', 'Grimoire (blank)']
+                    for i in self.role_choice:
+                        self.roleBox.addItem(i)
+                    self.roleBox.setCurrentIndex(0)
+
+                    self.coverBox.clear()
+                    self.cover_choice = ['Choose', 'Gymnast', 'Stripper', 'Trainer', 'Researcher', 'Burglar', 'Mechanic', 'Hustler', 'Therapist', 'Monk', 'Boxer', 'Collector', 'Translator', 'Psychiatrist']
+                    self.cover_bonus = ['', 'Agility', 'Beauty', 'Strength', 'Knowledge', 'Perception', 'Technology', 'Charisma', 'Empathy', 'Focus', 'Boxing', 'Art', 'Languages', 'Science']
+                    self.cover_clothes = ['', 'Cheap Suit', 'Fashionable Clothing', 'Track Suit', 'Cheap Suit', 'Plain Clothes', 'Denim Outfit', 'Fashionable Clothing', 'Nice Suit', 'Uniform', 'Dark Clothes', 'Plain Clothes', 'Uniform', 'Fashionable Clothes', 'Uniform', 'Dark Clothes', 'Uniform', 'Fashionable Clothing', 'Nice Suit', 'Medical Uniform', 'Beatnik Outfit']
+                    for i in self.cover_choice:
+                        self.coverBox.addItem(i)
+                    self.coverBox.setCurrentIndex(0)
+
+                    self.gender_not_chosen = False
+                    self.cult_not_chosen = False
+                    self.role_not_chosen = False
+                    self.choosing_extra_8_skills = True
+                    self.cover_not_chosen = False
+                    self.skilling_up = False
+
+                    #self.roleBox.setDisabled(False)
+
+                    self.additional_skill_points = 2
+                    self.additional2Display.setText('')
+                    self.choosing_extra_2_psionics_skills = True
+                if self.cult == 'Hantu Belian' and self.gender == 'Male':
+                    log.info('The male character leaves the Hantu Belian Cult and joins a Personality Cult.')
+                    self.cultBox.setCurrentIndex(4)
+                    self.cult = 'Personality'
+                    self.vampireLabel.setText('')
+                    self.vampire_checkBox.setChecked(False)
+                    self.vampire_checkBox.setDisabled(True)
+                    self.vampire_flag = False
+                if self.cult == 'Goddess Cult':
+                    log.info('Turn character into a junior member of the Druidess Council.')
+                    # self.attribute_score[0] = self.bodyScore.value()
+                    # self.attribute_score[1] = 3
+                    # self.attribute_score[2] = 3
+                    # self.status_level = [2, 2, 2]
+                    # self.scoreCap = 5
+                    # self.char_level = 0
+                    # self.bodyScore.setMaximum(self.scoreCap)
+                    # self.mindScore.setMaximum(self.scoreCap)
+                    # self.spiritScore.setMaximum(self.scoreCap)
+                    # self.bodyScore.setValue(self.attribute_score[self.body])
+                    # self.mindScore.setValue(self.attribute_score[self.mind])
+                    # self.spiritScore.setValue(self.attribute_score[self.spirit])
+                    self.tempbodyScore = self.bodyScore.value()
+                    self.tempmindScore = self.mindScore.value()
+                    self.tempspiritScore = self.spiritScore.value()
+
+                    # self.healthDisplay.setText(str(self.status_level[self.health] + self.attribute_score[self.body]))
+                    # self.sanityDisplay.setText(str(self.status_level[self.sanity] + self.attribute_score[self.mind]))
+                    # self.moraleDisplay.setText(str(self.status_level[self.morale] + self.attribute_score[self.spirit]))
+                    
+                    # self.skillCap = 3
+
+                    # self.agilitySkill.setMaximum(self.skillCap)
+                    # self.beautySkill.setMaximum(self.skillCap)
+                    # self.strengthSkill.setMaximum(self.skillCap)
+                    # self.knowledgeSkill.setMaximum(self.skillCap)
+                    # self.perceptionSkill.setMaximum(self.skillCap)
+                    # self.technologySkill.setMaximum(self.skillCap)
+                    # self.charismaSkill.setMaximum(self.skillCap)
+                    # self.empathySkill.setMaximum(self.skillCap)
+                    # self.focusSkill.setMaximum(self.skillCap)
+                    # self.boxingSkill.setMaximum(self.skillCap)
+                    # self.meleeSkill.setMaximum(self.skillCap)
+                    # self.rangedSkill.setMaximum(self.skillCap)
+                    # self.artSkill.setMaximum(self.skillCap)
+                    # self.languagesSkill.setMaximum(self.skillCap)
+                    # self.scienceSkill.setMaximum(self.skillCap)
+                    # self.dodgeSkill.setMaximum(self.skillCap)
+                    # self.parrySkill.setMaximum(self.skillCap)
+                    # self.strikeSkill.setMaximum(self.skillCap)
+                    # self.blessSkill.setMaximum(self.skillCap)
+                    # self.exorcismSkill.setMaximum(self.skillCap)
+                    # self.healingSkill.setMaximum(self.skillCap)
+                    # self.demonologySkill.setMaximum(3)
+                    # self.metamorphosisSkill.setMaximum(self.skillCap)
+                    # self.necromancySkill.setMaximum(3)
+                    # self.clairvoyanceSkill.setMaximum(4)
+                    # self.psychokinesisSkill.setMaximum(4)
+                    # self.telepathySkill.setMaximum(4)
+
+                    # self.agilitySkill.setValue(3)
+                    # self.beautySkill.setValue(1)
+                    # self.strengthSkill.setValue(0)
+                    # self.knowledgeSkill.setValue(0)
+                    # self.perceptionSkill.setValue(3)
+                    # self.technologySkill.setValue(0)
+                    # self.charismaSkill.setValue(1)
+                    # self.empathySkill.setValue(0)
+                    # self.focusSkill.setValue(2)
+                    # self.boxingSkill.setValue(1)
+                    # self.meleeSkill.setValue(0)
+                    # self.rangedSkill.setValue(0)
+                    # self.artSkill.setValue(0)
+                    # self.languagesSkill.setValue(0)
+                    # self.scienceSkill.setValue(0)
+                    # self.dodgeSkill.setValue(0)
+                    # self.parrySkill.setValue(0)
+                    # self.strikeSkill.setValue(0)
+                    # self.blessSkill.setValue(0)
+                    # self.exorcismSkill.setValue(0)
+                    # self.healingSkill.setValue(0)
+                    # self.demonologySkill.setValue(2)
+                    # self.metamorphosisSkill.setValue(1)
+                    # self.necromancySkill.setValue(0)
+                    # self.clairvoyanceSkill.setValue(0)
+                    # self.psychokinesisSkill.setValue(0)
+                    # self.telepathySkill.setValue(1)
+
+                    self.tempagilitySkill = self.agilitySkill.value()
+                    self.tempbeautySkill = self.beautySkill.value()
+                    self.tempstrengthSkill = self.strengthSkill.value()
+                    self.tempknowledgeSkill = self.knowledgeSkill.value()
+                    self.tempperceptionSkill = self.perceptionSkill.value()
+                    self.temptechnologySkill = self.technologySkill.value()
+                    self.tempcharismaSkill = self.charismaSkill.value()
+                    self.tempempathySkill = self.empathySkill.value()
+                    self.tempfocusSkill = self.focusSkill.value()
+                    self.tempboxingSkill = self.boxingSkill.value()
+                    self.tempmeleeSkill = self.meleeSkill.value()
+                    self.temprangedSkill = self.rangedSkill.value()
+                    self.tempartSkill = self.artSkill.value()
+                    self.templanguagesSkill = self.languagesSkill.value()
+                    self.tempscienceSkill = self.scienceSkill.value()
+                    self.tempdodgeSkill = self.dodgeSkill.value()
+                    self.tempparrySkill = self.parrySkill.value()
+                    self.tempstrikeSkill = self.strikeSkill.value()
+                    self.tempblessSkill = self.blessSkill.value()
+                    self.tempexorcismSkill = self.exorcismSkill.value()
+                    self.temphealingSkill = self.healingSkill.value()
+                    self.tempdemonologySkill = self.demonologySkill.value()
+                    self.tempmetamorphosisSkill = self.metamorphosisSkill.value()
+                    self.tempnecromancySkill = self.necromancySkill.value()
+                    self.tempclairvoyanceSkill = self.clairvoyanceSkill.value()
+                    self.temppsychokinesisSkill = self.psychokinesisSkill.value()
+                    self.temptelepathySkill = self.telepathySkill.value()
+
+                    #self.deptBox.setCurrentIndex(0)
+
+                    self.skilling_up = False
+                    # self.is_martial = False
+                    # self.is_divine = False
+                    # self.is_occult = False
+                    # self.is_psionic = True
+
+                    # self.agilitySkill.setDisabled(True)
+                    # self.beautySkill.setDisabled(True)
+                    # self.strengthSkill.setDisabled(True)
+                    # self.knowledgeSkill.setDisabled(True)
+                    # self.perceptionSkill.setDisabled(True)
+                    # self.technologySkill.setDisabled(True)
+                    # self.charismaSkill.setDisabled(True)
+                    # self.empathySkill.setDisabled(True)
+                    # self.focusSkill.setDisabled(True)
+                    # self.boxingSkill.setDisabled(True)
+                    # self.meleeSkill.setDisabled(True)
+                    # self.rangedSkill.setDisabled(True)
+                    # self.artSkill.setDisabled(True)
+                    # self.languagesSkill.setDisabled(True)
+                    # self.scienceSkill.setDisabled(True)
+                    # self.dodgeSkill.setDisabled(True)
+                    # self.parrySkill.setDisabled(True)
+                    # self.strikeSkill.setDisabled(True)
+                    # self.blessSkill.setDisabled(True)
+                    # self.exorcismSkill.setDisabled(True)
+                    # self.healingSkill.setDisabled(True)
+                    # self.demonologySkill.setDisabled(True)
+                    # self.metamorphosisSkill.setDisabled(True)
+                    # self.necromancySkill.setDisabled(True)
+                    # self.clairvoyanceSkill.setDisabled(False)
+                    # self.psychokinesisSkill.setDisabled(False)
+                    # self.telepathySkill.setDisabled(False)
+
+                    # self.char_level = 0
+                    # self.levelDisplay.setText(str(self.char_level))
+                    # self.xpEdit.setDisabled(True)
+                    # self.char_xp = 0
+                    # self.xpEdit.setText(str(self.char_xp))
+                    # self.level_achieved = 100
+                    # self.next_level = 200
+
+                    # self.rewardDisplay.setText(str(self.agilitySkill.value() + self.beautySkill.value() + self.strengthSkill.value() +
+                    #     self.knowledgeSkill.value() + self.perceptionSkill.value() + self.technologySkill.value() +
+                    #     self.charismaSkill.value() + self.empathySkill.value() + self.focusSkill.value() +
+                    #     self.boxingSkill.value() + self.meleeSkill.value() + self.rangedSkill.value() +
+                    #     self.artSkill.value() + self.languagesSkill.value() + self.scienceSkill.value() +
+                    #     self.dodgeSkill.value() + self.parrySkill.value() + self.strikeSkill.value() +
+                    #     self.blessSkill.value() + self.exorcismSkill.value() + self.healingSkill.value() +
+                    #     self.demonologySkill.value() + self.metamorphosisSkill.value() + self.necromancySkill.value() +
+                    #     self.clairvoyanceSkill.value() + self.psychokinesisSkill.value() + self.telepathySkill.value()) + 'xp')
+                    
+                    self.enc = 1
+                    self.mov = 1
+                    self.ran = 1
+
+                    # self.encumbered_checkBox.setDisabled(True)
+                    # self.encumbered_flag = False
+                    # self.encumbered_checkBox.setChecked(self.encumbered_flag)
+                    
+                    # self.clearing_character = True
+                    # self.vampire_checkBox.setDisabled(True)
+                    # self.vampire_checkBox.setChecked(self.vampire_flag)
+                    # self.clearing_character = False
+                    # self.charnameEdit.setText('Sample Char')
+                    # self.charnameEdit.setDisabled(False)
+                    # self.ageEdit.setText('')
+                    # self.ageEdit.setDisabled(False)
+                    # self.genderBox.setCurrentIndex(0)
+                    # self.genderBox.setDisabled(False)
+                    # self.gender = ''
+                    #self.gender_not_chosen = False
+                    # self.cultBox.clear()
+                    # self.cultBox.addItem('Choose')
+                    #self.cult_not_chosen = False
+                    # self.cultBox.setCurrentIndex(0)
+                    # self.cultBox.setDisabled(True)
+                    #self.role_not_chosen = False
+                    # self.roleBox.setCurrentIndex(0)
+                    # self.roleBox.setDisabled(True)
+                    # self.choosing_extra_8_skills = False
+                    #self.cover_not_chosen = False
+                    # self.coverBox.setCurrentIndex(0)
+                    # self.coverBox.setDisabled(True)
+                    # self.rewardDisplay.setText('None')
+                    # self.healthStatus.setText('')
+                    # self.sanityStatus.setText('')
+                    # self.moraleStatus.setText('')
+                    # self.bodyScore.setDisabled(True)
+                    # self.mindScore.setDisabled(True)
+                    # self.spiritScore.setDisabled(True)
+                    # self.armorDisplay.setPlainText('None')
+                    # self.weaponDisplay.setPlainText('None')
+                    # self.itemsDisplay.setPlainText('None')
+                    # self.specialDisplay.setPlainText('')
+                    # self.traitsDisplay.setPlainText('')
+                    # self.backstoryDisplay.setPlainText('')
+                    # self.notesDisplay.setPlainText('')
+
+                    # self.additional_attribute_points = 4
+                    # self.additional1Display.setText(str(self.additional_attribute_points))
+                    # self.bodyScore.setDisabled(False)
+                    # self.mindScore.setDisabled(False)
+                    # self.spiritScore.setDisabled(False)
+                    # self.additional1Display.setText('')
+
+                    self.vampire_chargen = True
+                    #self.roleBox.setCurrentIndex(0)
+                    #self.coverBox.setCurrentIndex(0)
+
+                    self.roleBox.clear()
+                    self.role_choice = ['Choose', 'Sorceress', 'Priestess', 'Witch']
+                    self.role_skill = ['', 'Psionics', 'Divine', 'Occult']
+                    self.role_item = ['', 'Crystal Ball', 'Goddess Mask', 'Herbalist Kit']
+                    for i in self.role_choice:
+                        self.roleBox.addItem(i)
+                    self.roleBox.setCurrentIndex(0)
+
+                    self.coverBox.clear()
+                    self.cover_choice = ['Choose', 'Driver', 'Celebrity', 'Athlete', 'Journalist', 'Detective', 'Engineer', 'Actor', 'Psychologist', 'Security', 'Enforcer', 'Thief', 'Cop', 'Painter', 'Ambassador', 'Doctor', 'Fortune Teller']
+                    self.cover_bonus = ['', 'Agility', 'Beauty', 'Strength', 'Knowledge', 'Perception', 'Technology', 'Charisma', 'Empathy', 'Focus', 'Boxing', 'Melee', 'Ranged', 'Art', 'Languages', 'Science', 'Clairvoyance']
+                    self.cover_clothes = ['', 'Cheap Suit', 'Fashionable Clothing', 'Track Suit', 'Cheap Suit', 'Plain Clothes', 'Denim Outfit', 'Fashionable Clothing', 'Nice Suit', 'Uniform', 'Dark Clothes', 'Plain Clothes', 'Uniform', 'Fashionable Clothes', 'Uniform', 'Dark Clothes', 'Uniform', 'Fashionable Clothing', 'Nice Suit', 'Medical Uniform', 'Beatnik Outfit']
+                    for i in self.cover_choice:
+                        self.coverBox.addItem(i)
+                    self.coverBox.setCurrentIndex(0)
+
+                    self.gender_not_chosen = False
+                    self.cult_not_chosen = False
+                    self.role_not_chosen = False
+                    self.choosing_extra_8_skills = True
+                    self.cover_not_chosen = False
+                    self.skilling_up = False
+
+                    #self.roleBox.setDisabled(False)
+
+                    self.additional_skill_points = 2
+                    self.additional2Display.setText('')
+                    self.choosing_extra_2_psionics_skills = True
+                    self.roleBox.setDisabled(False)
+                    self.civ_mod = True
+                    self.role_not_chosen = True
+                    self.cover_not_chosen = True
 
     def clearButton_clicked(self):
         '''
-        Clear all the fields
+        Clear all the fields.
         '''
         log.info('Clear all fields')
+        self.attribute_score = [1, 1, 1]
         self.status_level = [2, 2, 2]
+
+        self.vampire_chargen = False
+        self.vampire_flag = False
+        self.choosing_extra_2_psionics_skills = False
+        self.choosing_extra_8_skills = False
+        
+        self.scoreCap = 3
+        self.skillCap = 3
+        
+        self.roleBox.clear()
+        self.role_choice = ['Choose', 'Servant', 'Steward', 'Advisor', 'Guardian', 'Expert', 'Assassin', 'Psychic', 'Acolyte', 'Student']
+        self.role_skill = ['', 'Body', 'Mind', 'Spirit', 'Combat', 'Strange', 'Martial', 'Psionics', 'Divine', 'Occult']
+        self.role_item = ['', 'Kit of Choice', 'Nice Watch', 'Flask', 'Pistol', 'Briefcase', 'Sword', 'Tarot Cards', 'Ceremonial Robes', 'Grimoire (blank)']
+        for i in self.role_choice:
+            self.roleBox.addItem(i)
+        self.roleBox.setCurrentIndex(0)
+
+        self.coverBox.clear()
+        self.cover_choice = ['Choose', 'Driver', 'Celebrity', 'Athlete', 'Journalist', 'Detective', 'Engineer', 'Actor', 'Psychologist', 'Security', 'Enforcer', 'Thief', 'Cop', 'Painter', 'Ambassador', 'Doctor', 'Fortune Teller']
+        self.cover_bonus = ['', 'Agility', 'Beauty', 'Strength', 'Knowledge', 'Perception', 'Technology', 'Charisma', 'Empathy', 'Focus', 'Boxing', 'Melee', 'Ranged', 'Art', 'Languages', 'Science', 'Clairvoyance']
+        self.cover_clothes = ['', 'Cheap Suit', 'Fashionable Clothing', 'Track Suit', 'Cheap Suit', 'Plain Clothes', 'Denim Outfit', 'Fashionable Clothing', 'Nice Suit', 'Uniform', 'Dark Clothes', 'Plain Clothes', 'Uniform', 'Fashionable Clothes', 'Uniform', 'Dark Clothes', 'Uniform', 'Fashionable Clothing', 'Nice Suit', 'Medical Uniform', 'Beatnik Outfit']
+        for i in self.cover_choice:
+            self.coverBox.addItem(i)
+        self.coverBox.setCurrentIndex(0)
 
         self.bodyScore.setValue(self.attribute_score[self.body])
         self.mindScore.setValue(self.attribute_score[self.mind])
@@ -535,15 +1348,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tempmindScore = self.mindScore.value()
         self.tempspiritScore = self.spiritScore.value()
 
-        #self.additional_attribute_points = 3
-        self.additional1Display.setText('')
+        #self.additional_attribute_points = 0
 
         self.healthDisplay.setText(str(self.status_level[self.health] + self.attribute_score[self.body]))
         self.sanityDisplay.setText(str(self.status_level[self.sanity] + self.attribute_score[self.mind]))
         self.moraleDisplay.setText(str(self.status_level[self.morale] + self.attribute_score[self.spirit]))
-
-        self.scoreCap = 3
-        self.skillCap = 3
+        self.flightDisplay.setText('')
 
         self.bodyScore.setMaximum(self.scoreCap)
         self.mindScore.setMaximum(self.scoreCap)
@@ -632,13 +1442,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         #self.deptBox.setCurrentIndex(0)
 
+        self.gender_not_chosen = True
+        self.cult_not_chosen = True
+        self.role_not_chosen = True
+        self.cover_not_chosen = True
+        
         self.skilling_up = False
-        self.attributing_up = False
         self.is_martial = False
         self.is_divine = False
         self.is_occult = False
         self.is_psionic = False
-        self.is_vampire = 'No'
 
         self.agilitySkill.setDisabled(True)
         self.beautySkill.setDisabled(True)
@@ -676,9 +1489,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.level_achieved = 100
         self.next_level = 200
 
+        self.enc = 1
+        self.mov = 1
+        self.ran = 1
+
         self.encumbered_checkBox.setDisabled(True)
         self.encumbered_flag = False
         self.encumbered_checkBox.setChecked(self.encumbered_flag)
+        self.clearing_character = True
+        self.vampire_checkBox.setDisabled(True)
+        self.vampire_checkBox.setChecked(self.vampire_flag)
+        self.clearing_character = False
         self.charnameEdit.setText('Sample Char')
         self.charnameEdit.setDisabled(False)
         self.ageEdit.setText('')
@@ -686,17 +1507,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.genderBox.setCurrentIndex(0)
         self.genderBox.setDisabled(False)
         self.gender = ''
-        self.gender_not_chosen = True
+        
         self.cultBox.clear()
         self.cultBox.addItem('Choose')
-        self.cult_not_chosen = True
+        
         self.cultBox.setCurrentIndex(0)
         self.cultBox.setDisabled(True)
-        self.role_not_chosen = True
+        
         self.roleBox.setCurrentIndex(0)
         self.roleBox.setDisabled(True)
-        self.choosing_extra_8_skills = False
-        self.cover_not_chosen = True
+        
         self.coverBox.setCurrentIndex(0)
         self.coverBox.setDisabled(True)
         self.rewardDisplay.setText('None')
@@ -714,17 +1534,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.backstoryDisplay.setPlainText('')
         self.notesDisplay.setPlainText('')
 
+        self.additional1Display.setText('')
+        
+        self.gender_not_chosen = True
+        self.cult_not_chosen = True
+        self.role_not_chosen = True
+        self.cover_not_chosen = True
+        
+        self.vampire_chargen = False
+        self.vampire_flag = False
+        self.choosing_extra_2_psionics_skills = False
+        self.choosing_extra_8_skills = False
+        self.civ_mode = False
+        
         self.additional_skill_points = 0
         self.additional2Display.setText('')
+        self.vampireLabel.setText('')
 
     def bodyScore_valueChanged(self):
         '''
         A Body Score was entered.
         Add/substract from additional Attribute points.
         '''
-        self.encumbranceDisplay.setText(str(1 + self.bodyScore.value() + self.strengthSkill.value()) + ' items')
-        self.movementDisplay.setText(str(1 + self.bodyScore.value() + self.agilitySkill.value()) + ' spaces')
-        self.rangeDisplay.setText(str(1 + self.bodyScore.value() + self.strengthSkill.value()) + ' miles')
+        self.encumbranceDisplay.setText(str(self.enc + self.bodyScore.value() + self.strengthSkill.value()) + ' items')
+        self.movementDisplay.setText(str(self.mov + self.bodyScore.value() + self.agilitySkill.value()) + ' spaces')
+        self.rangeDisplay.setText(str(self.ran + self.bodyScore.value() + self.strengthSkill.value()) + ' miles')
         self.additional_attribute_points += self.tempbodyScore - self.bodyScore.value()
         if self.additional_attribute_points >= 0:
             self.additional1Display.setText(str(self.additional_attribute_points))
@@ -743,8 +1577,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.actionSave.setDisabled(False)
             self.printButton.setDisabled(False)
             self.actionPrint.setDisabled(False)
-            if self.attributing_up:
-                self.attributing_up = False
+            if self.char_level >= 3 and self.vampire_flag == False:
+                if self.cult == 'Hantu Belian' and self.gender == 'Male':
+                    self.vampireLabel.setText('Leave the cult?')
+                else:
+                    if self.cult == 'Goddess Cult':
+                        self.vampireLabel.setText('Druidess Council?')
+                    else:
+                        self.vampireLabel.setText('Vampire?')
+                self.vampire_checkBox.setDisabled(False)
 
     def mindScore_valueChanged(self):
         '''
@@ -769,14 +1610,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.actionSave.setDisabled(False)
             self.printButton.setDisabled(False)
             self.actionPrint.setDisabled(False)
-            if self.attributing_up:
-                self.attributing_up = False
+            if self.char_level >= 3 and self.vampire_flag == False:
+                if self.cult == 'Hantu Belian' and self.gender == 'Male':
+                    self.vampireLabel.setText('Leave the cult?')
+                else:
+                    if self.cult == 'Goddess Cult':
+                        self.vampireLabel.setText('Druidess Council?')
+                    else:
+                        self.vampireLabel.setText('Vampire?')
+                self.vampire_checkBox.setDisabled(False)
 
     def spiritScore_valueChanged(self):
         '''
         A Spirit Score was entered.
         Add/substract from additional Attribute points.
         '''
+        if self.vampire_flag == True and self.psychokinesisSkill.value() > 0:
+            self.flightDisplay.setText(str(self.spiritScore.value() + self.psychokinesisSkill.value()))
+        else:
+            self.flightDisplay.setText('')
         self.additional_attribute_points += self.tempspiritScore - self.spiritScore.value()
         if self.additional_attribute_points >= 0:
             self.additional1Display.setText(str(self.additional_attribute_points))
@@ -795,17 +1647,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.actionSave.setDisabled(False)
             self.printButton.setDisabled(False)
             self.actionPrint.setDisabled(False)
-            if self.attributing_up:
-                self.attributing_up = False
+            if self.char_level >= 3 and self.vampire_flag == False:
+                if self.cult == 'Hantu Belian' and self.gender == 'Male':
+                    self.vampireLabel.setText('Leave the cult?')
+                else:
+                    if self.cult == 'Goddess Cult':
+                        self.vampireLabel.setText('Druidess Council?')
+                    else:
+                        self.vampireLabel.setText('Vampire?')
+                self.vampire_checkBox.setDisabled(False)
     
     def agilitySkill_valueChanged(self):
         '''
         An Agility Skill was entered.
         Add/substract from additional Skill points.
         '''
-        self.encumbranceDisplay.setText(str(1 + self.bodyScore.value() + self.strengthSkill.value()) + ' items')
-        self.movementDisplay.setText(str(1 + self.bodyScore.value() + self.agilitySkill.value()) + ' spaces')
-        self.rangeDisplay.setText(str(1 + self.bodyScore.value() + self.strengthSkill.value()) + ' miles')
+        self.encumbranceDisplay.setText(str(self.enc + self.bodyScore.value() + self.strengthSkill.value()) + ' items')
+        self.movementDisplay.setText(str(self.mov + self.bodyScore.value() + self.agilitySkill.value()) + ' spaces')
+        self.rangeDisplay.setText(str(self.ran + self.bodyScore.value() + self.strengthSkill.value()) + ' miles')
         self.additional_skill_points += self.tempagilitySkill - self.agilitySkill.value()
         if self.additional_skill_points >= 0:
             self.additional2Display.setText(str(self.additional_skill_points))
@@ -863,6 +1722,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -1019,6 +1886,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -1120,9 +1995,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         A Strength Skill was entered.
         Add/substract from additional Skill points.
         '''
-        self.encumbranceDisplay.setText(str(1 + self.bodyScore.value() + self.strengthSkill.value()) + ' items')
-        self.movementDisplay.setText(str(1 + self.bodyScore.value() + self.agilitySkill.value()) + ' spaces')
-        self.rangeDisplay.setText(str(1 + self.bodyScore.value() + self.strengthSkill.value()) + ' miles')
+        self.encumbranceDisplay.setText(str(self.enc + self.bodyScore.value() + self.strengthSkill.value()) + ' items')
+        self.movementDisplay.setText(str(self.mov + self.bodyScore.value() + self.agilitySkill.value()) + ' spaces')
+        self.rangeDisplay.setText(str(self.ran + self.bodyScore.value() + self.strengthSkill.value()) + ' miles')
         self.additional_skill_points += self.tempstrengthSkill - self.strengthSkill.value()
         if self.additional_skill_points >= 0:
             self.additional2Display.setText(str(self.additional_skill_points))
@@ -1177,6 +2052,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -1332,6 +2215,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -1487,6 +2378,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -1642,6 +2541,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -1797,6 +2704,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -1952,6 +2867,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -2107,6 +3030,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -2262,6 +3193,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -2417,6 +3356,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -2572,6 +3519,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -2727,6 +3682,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -2882,6 +3845,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -3037,6 +4008,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -3192,6 +4171,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -3347,6 +4334,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -3502,6 +4497,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -3657,6 +4660,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -3812,6 +4823,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -3967,6 +4986,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -4122,6 +5149,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -4277,6 +5312,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -4432,6 +5475,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -4581,12 +5632,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.xpEdit.setDisabled(False)
                 self.skilling_up = False
             else:
+                print('role_not_chosen: ', self.role_not_chosen)
                 if self.role_not_chosen:
-                    self.roleBox.setDisabled(False)
+                    if self.choosing_extra_2_psionics_skills == False:
+                        self.roleBox.setDisabled(False)
+                        print('Not doing 2 psionic skills -- vampire chargen', self.vampire_chargen)
                 else:
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
+                            print('Psionics unlocked')
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -4655,7 +5718,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.clairvoyanceSkill.setDisabled(True)
                         self.psychokinesisSkill.setDisabled(True)
                         self.telepathySkill.setDisabled(True)
-                        self.coverBox.setDisabled(False)
+                        if self.choosing_extra_2_psionics_skills == False:
+                            self.coverBox.setDisabled(False)
+                        else:
+                            print('Vampire CharGen: ', self.vampire_chargen)
+                            self.roleBox.setDisabled(False)
+                            self.role_not_chosen = True
+                            self.cover_not_chosen = True
+                            self.choosing_extra_2_psionics_skills = False
                     self.rewardDisplay.setText(str(self.agilitySkill.value() + self.beautySkill.value() + self.strengthSkill.value() +
                             self.knowledgeSkill.value() + self.perceptionSkill.value() + self.technologySkill.value() +
                             self.charismaSkill.value() + self.empathySkill.value() + self.focusSkill.value() +
@@ -4688,6 +5758,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         A Psychokinesis Skill was entered.
         Add/substract from additional Skill points.
         '''
+        if self.vampire_flag == True and self.psychokinesisSkill.value() > 0:
+            self.flightDisplay.setText(str(self.spiritScore.value() + self.psychokinesisSkill.value()))
+        else:
+            self.flightDisplay.setText('')
         self.additional_skill_points += self.temppsychokinesisSkill - self.psychokinesisSkill.value()
         if self.additional_skill_points >= 0:
             self.additional2Display.setText(str(self.additional_skill_points))
@@ -4737,11 +5811,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.skilling_up = False
             else:
                 if self.role_not_chosen:
-                    self.roleBox.setDisabled(False)
+                    if self.choosing_extra_2_psionics_skills == False:
+                        self.roleBox.setDisabled(False)
                 else:
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -4810,7 +5893,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.clairvoyanceSkill.setDisabled(True)
                         self.psychokinesisSkill.setDisabled(True)
                         self.telepathySkill.setDisabled(True)
-                        self.coverBox.setDisabled(False)
+                        if self.choosing_extra_2_psionics_skills == False:
+                            self.coverBox.setDisabled(False)
+                        else:
+                            self.roleBox.setDisabled(False)
+                            self.role_not_chosen = True
+                            self.cover_not_chosen = True
+                            self.choosing_extra_2_psionics_skills = False
                     self.rewardDisplay.setText(str(self.agilitySkill.value() + self.beautySkill.value() + self.strengthSkill.value() +
                             self.knowledgeSkill.value() + self.perceptionSkill.value() + self.technologySkill.value() +
                             self.charismaSkill.value() + self.empathySkill.value() + self.focusSkill.value() +
@@ -4892,11 +5981,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.skilling_up = False
             else:
                 if self.role_not_chosen:
-                    self.roleBox.setDisabled(False)
+                    if self.choosing_extra_2_psionics_skills == False:
+                        self.roleBox.setDisabled(False)
                 else:
                     if self.choosing_extra_8_skills == False:
                         self.choosing_extra_8_skills = True
                         self.additional_skill_points = 8
+                        if self.vampire_chargen == True:
+                            self.additional_skill_points = 3
+                            if self.clairvoyanceSkill.value() > 0:
+                                self.clairvoyanceSkill.setDisabled(False)
+                            if self.psychokinesisSkill.value() > 0:
+                                self.psychokinesisSkill.setDisabled(False)
+                            if self.telepathySkill.value() > 0:
+                                self.telepathySkill.setDisabled(False)
                         self.additional2Display.setText(str(self.additional_skill_points))
                         self.agilitySkill.setDisabled(False)
                         self.beautySkill.setDisabled(False)
@@ -4965,7 +6063,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.clairvoyanceSkill.setDisabled(True)
                         self.psychokinesisSkill.setDisabled(True)
                         self.telepathySkill.setDisabled(True)
-                        self.coverBox.setDisabled(False)
+                        if self.choosing_extra_2_psionics_skills == False:
+                            self.coverBox.setDisabled(False)
+                        else:
+                            self.roleBox.setDisabled(False)
+                            self.role_not_chosen = True
+                            self.cover_not_chosen = True
+                            self.choosing_extra_2_psionics_skills = False
                     self.rewardDisplay.setText(str(self.agilitySkill.value() + self.beautySkill.value() + self.strengthSkill.value() +
                             self.knowledgeSkill.value() + self.perceptionSkill.value() + self.technologySkill.value() +
                             self.charismaSkill.value() + self.empathySkill.value() + self.focusSkill.value() +
@@ -4997,7 +6101,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         '''
         A gender was chosen for the character
         '''
-        if self.gender_not_chosen:
+        if self.gender_not_chosen == True:
             if self.genderBox.currentIndex() == 0:
                 self.gender = ''
                 self.gender_not_chosen = True
@@ -5026,7 +6130,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         A cult was chosen for the character
         '''
         if self.gender_not_chosen == False:
-            if self.cult_not_chosen:
+            if self.cult_not_chosen == True:
                 if self.cultBox.currentIndex() == 0:
                     self.cult = ''
                     self.cult_not_chosen = True
@@ -5086,28 +6190,43 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.beautySkill.setMaximum(4)
                         self.strengthSkill.setDisabled(False)
                         self.strengthSkill.setMaximum(4)
-                    
 
-                    #self.roleBox.setDisabled(False)
-
-    
     def roleBox_changed(self):
         '''
         A role was chosen for the character
         '''
-        #self.cultBox.setDisabled(True)
         if self.cult_not_chosen == False:
-            if self.role_not_chosen:
+            if self.role_not_chosen == True:
                 if self.roleBox.currentIndex() == 0:
                     self.role = ''
                     self.role_not_chosen = True
                 else:
                     self.role = self.role_choice[self.roleBox.currentIndex()]
                     self.roleSkills = self.role_skill[self.roleBox.currentIndex()]
-                    self.itemsDisplay.setPlainText(self.role_item[self.roleBox.currentIndex()])
+                    if self.vampire_chargen == False:
+                        self.itemsDisplay.setPlainText(self.role_item[self.roleBox.currentIndex()])
+                    else:
+                        if self.cult == 'Goddess Cult':
+                            self.itemsDisplay.setPlainText(self.role_item[self.roleBox.currentIndex()])
+                        else:
+                            temp_items = ['Box of Ammo', 'Flashlight', 'Sleep Gas Grenade', 'Micro-Explosive Wad', 'Telescopic Camera', 'Video Recorder', 'Concealed Camera', 'Forensics Kit',
+                                        'Disguise Kit', 'Climbing Kit', "Locksmith's Kit", 'SCUBA Gear']
+                            self.itemsDisplay.setPlainText('')
+                            for i in range(3):
+                                rolled_item = temp_items[roll('d12-1')]
+                                if self.itemsDisplay.toPlainText() == '':
+                                    self.itemsDisplay.setPlainText(rolled_item)
+                                else:
+                                    self.itemsDisplay.setPlainText(self.itemsDisplay.toPlainText() + ', ' + rolled_item)
                     self.roleBox.setDisabled(True)
                     self.role_not_chosen = False
-                    self.additional_skill_points = 3
+                    if self.vampire_chargen == False:
+                        self.additional_skill_points = 3
+                    else:
+                        if self.cult == 'Goddess Cult':
+                            self.additional_skill_points = 3
+                        else:
+                            self.additional_skill_points = 6
                     self.additional2Display.setText(str(self.additional_skill_points))
 
                     # Pick skills from role
@@ -5139,7 +6258,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.meleeSkill.setMaximum(4)
                         self.rangedSkill.setDisabled(False)
                         self.rangedSkill.setMaximum(4)
-                    if self.roleSkills == 'Strange':
+                    if self.roleSkills == 'Strange' or (self.vampire_chargen == True and self.cult == 'Boeotian Club'):
                         self.artSkill.setDisabled(False)
                         self.artSkill.setMaximum(4)
                         self.languagesSkill.setDisabled(False)
@@ -5174,20 +6293,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.metamorphosisSkill.setMaximum(4)
                         self.necromancySkill.setDisabled(False)
                         self.necromancySkill.setMaximum(4)
+                    if self.vampire_chargen == True and self.cult == 'Hantu Belian':
+                        self.demonologySkill.setDisabled(False)
+                        self.demonologySkill.setMaximum(4)
+                        self.metamorphosisSkill.setDisabled(False)
+                        self.metamorphosisSkill.setMaximum(3)
+                        self.necromancySkill.setDisabled(False)
+                        self.necromancySkill.setMaximum(3)
+                    
+                    if self.vampire_chargen == True:
+                        self.choosing_extra_8_skills = False
                 
     def coverBox_changed(self):
         '''
         A cover was chosen for the character
         '''
         if self.role_not_chosen == False:
-            if self.cover_not_chosen:
+            if self.cover_not_chosen == True:
                 if self.coverBox.currentIndex() == 0:
                     self.cover = ''
                     self.cover_not_chosen = True
                 else:
                     self.cover = self.cover_choice[self.coverBox.currentIndex()]
                     self.skill_bonus = self.cover_bonus[self.coverBox.currentIndex()]
-                    self.armorDisplay.setPlainText(self.cover_clothes[self.coverBox.currentIndex()])
+                    if self.vampire_chargen == False:
+                        self.armorDisplay.setPlainText(self.cover_clothes[self.coverBox.currentIndex()])
+                    else:
+                        if self.cult != 'Goddess Cult':
+                            if self.cult == 'Boeotian Club':
+                                temp_armors = ['Quality Clothing', 'Fashionable Clothing']
+                            if self.cult == 'Hantu Belian':
+                                temp_armors = ['Plain Clothing', 'Nice Clothing']
+                            self.armorDisplay.setPlainText(temp_armors[roll('d01')])
                     self.coverBox.setDisabled(True)
                     self.cover_not_chosen = False
 
@@ -5240,6 +6377,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if self.skill_bonus == 'Clairvoyance':
                         self.clairvoyanceSkill.setMaximum(5)
                         self.clairvoyanceSkill.setValue(self.clairvoyanceSkill.value() + 1)
+                    if self.skill_bonus == 'Psychokinesis':
+                        self.psychokinesisSkill.setMaximum(5)
+                        self.psychokinesisSkill.setValue(self.psychokinesisSkill.value() + 1)
+                    if self.skill_bonus == 'Telepathy':
+                        self.telepathySkill.setMaximum(5)
+                        self.telepathySkill.setValue(self.telepathySkill.value() + 1)
                     self.additional2Display.setText('')
                     self.additional_skill_points = 0
                     self.rewardDisplay.setText(str(self.agilitySkill.value() + self.beautySkill.value() + self.strengthSkill.value() +
@@ -5253,13 +6396,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             self.clairvoyanceSkill.value() + self.psychokinesisSkill.value() + self.telepathySkill.value()) + 'xp')
                     
                     # Unlock attribute assignments
-                    self.additional_attribute_points = 3
-                    self.additional1Display.setText(str(self.additional_attribute_points))
-                    self.bodyScore.setDisabled(False)
-                    self.mindScore.setDisabled(False)
-                    self.spiritScore.setDisabled(False)
+                    if self.vampire_chargen == False:
+                        self.additional_attribute_points = 3
+                        self.additional1Display.setText(str(self.additional_attribute_points))
+                        self.bodyScore.setDisabled(False)
+                        self.mindScore.setDisabled(False)
+                        self.spiritScore.setDisabled(False)
+                    else:
+                        if self.cult != 'Goddess Cult':
+                            self.additional_attribute_points = 4
+                            self.additional1Display.setText(str(self.additional_attribute_points))
+                            self.bodyScore.setDisabled(False)
+                            self.mindScore.setDisabled(False)
+                            self.spiritScore.setDisabled(False)
+                        else:
+                            self.saveButton.setDisabled(False)
     
     def xpValue_changed(self):
+        '''
+        An amount of xp was changed.
+        '''
         current_xp = self.xpEdit.text()
         if current_xp == '':
             current_xp = 0
@@ -5471,8 +6627,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif self.level_achieved == 500:
                 self.additional_attribute_points = 1
                 self.additional1Display.setText(str(self.additional_attribute_points))
-                self.attributing_up = True
-                self.scoreCap = 3
+                if self.vampire_flag == False:
+                    self.scoreCap = 3
+                else:
+                    self.scoreCap = 5
                 self.bodyScore.setMaximum(self.scoreCap)
                 self.mindScore.setMaximum(self.scoreCap)
                 self.spiritScore.setMaximum(self.scoreCap)
@@ -5559,8 +6717,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif self.level_achieved == 2000:
                 self.additional_attribute_points = 1
                 self.additional1Display.setText(str(self.additional_attribute_points))
-                self.attributing_up = True
-                self.scoreCap = 4
+                if self.vampire_flag == False:
+                    self.scoreCap = 4
+                else:
+                    self.scoreCap = 5
                 self.bodyScore.setMaximum(self.scoreCap)
                 self.mindScore.setMaximum(self.scoreCap)
                 self.spiritScore.setMaximum(self.scoreCap)
@@ -5654,8 +6814,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif self.level_achieved == 20000:
                 self.additional_attribute_points = 1
                 self.additional1Display.setText(str(self.additional_attribute_points))
-                self.attributing_up = True
-                self.scoreCap = 5
+                if self.vampire_flag == False:
+                    self.scoreCap = 5
+                else:
+                    self.scoreCap = 6
                 self.bodyScore.setMaximum(self.scoreCap)
                 self.mindScore.setMaximum(self.scoreCap)
                 self.spiritScore.setMaximum(self.scoreCap)
@@ -5737,14 +6899,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.actionSave.setDisabled(True)
                 self.printButton.setDisabled(True)
                 self.actionPrint.setDisabled(True)
-            
-        print('Next XP level:', self.level_achieved, '    Skilling up:', self.skilling_up, '    Attributing up:', self.attributing_up)
     
     def loadButton_clicked(self):
         '''
         Load a .tps file for an already saved character.
         The file is stored in JSON format.
         '''
+        #self.clearButton_clicked()
         self.filename = QFileDialog.getOpenFileName(self, 'Open TPS Character File', self.char_folder, 'TPS files (*' + self.file_extension + ')')
         if self.filename[0] != '':
             log.info('Loading ' + self.filename[0])
@@ -5752,6 +6913,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.char_data = json.load(json_file)
                 self.format_read = self.char_data['Fileformat']
                 log.info('File format is: ' + str(self.format_read))
+                self.vampire_chargen = False
+                self.vampire_flag = False
+                self.choosing_extra_2_psionics_skills = False
                 self.scoreCap = self.char_data['Scorecap']
                 self.bodyScore.setMaximum(self.scoreCap)
                 self.mindScore.setMaximum(self.scoreCap)
@@ -5794,6 +6958,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.genderBox.setDisabled(True)
                 self.cult = self.char_data['Cult']
                 self.cult_not_chosen = False
+                self.cultBox.clear()
                 if self.gender == 'Male':
                     self.cult_choice = ['Choose', 'Hantu Belian', 'Blood Knight', 'Utopian Legion', 'Personality']
                 else:
@@ -5802,14 +6967,63 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.cultBox.addItem(i)
                 self.cultBox.setCurrentIndex(self.cult_choice.index(self.cult))
                 self.cultBox.setDisabled(True)
+
+                self.vampire_flag = self.char_data['Is_Vampire']
+
+                if self.vampire_flag == False:
+                    self.role_choice = ['Choose', 'Servant', 'Steward', 'Advisor', 'Guardian', 'Expert', 'Assassin', 'Psychic', 'Acolyte', 'Student']
+                    self.role_skill = ['', 'Body', 'Mind', 'Spirit', 'Combat', 'Strange', 'Martial', 'Psionics', 'Divine', 'Occult']
+                    self.role_item = ['', 'Kit of Choice', 'Nice Watch', 'Flask', 'Pistol', 'Briefcase', 'Sword', 'Tarot Cards', 'Ceremonial Robes', 'Grimoire (blank)']
+                else:
+                    if self.cult == 'Boeotian Club':
+                        self.role_choice = ['Choose', 'Aspirational', 'Intellectual', 'Personable', 'Undefeated', 'Tutorial', 'Cryptic', 'Oracular', 'Mystical']
+                        self.role_skill = ['', 'Body', 'Mind', 'Spirit', 'Combat', 'Strange', 'Martial', 'Psionics', 'Occult']
+                        self.role_item = ['', 'Kit of Choice', 'Nice Watch', 'Flask', 'Pistol', 'Briefcase', 'Sword', 'Tarot Cards', 'Ceremonial Robes', 'Grimoire (blank)']
+                    if self.cult == 'Hantu Belian':
+                        self.role_choice = ['Choose', 'Prowler', 'Scout', 'Seducer', 'Ranger', 'Scholar', 'Acrobat', 'Hypnotist', 'Cleric']
+                        self.role_skill = ['', 'Body', 'Mind', 'Spirit', 'Combat', 'Strange', 'Martial', 'Psionics', 'Divine']
+                        self.role_item = ['', 'Kit of Choice', 'Nice Watch', 'Flask', 'Pistol', 'Briefcase', 'Sword', 'Tarot Cards', 'Ceremonial Robes', 'Grimoire (blank)']
+                    if self.cult == 'Goddess Cult':
+                        self.role_choice = ['Choose', 'Sorceress', 'Priestess', 'Witch']
+                        self.role_skill = ['', 'Psionics', 'Divine', 'Occult']
+                        self.role_item = ['', 'Crystal Ball', 'Goddess Mask', 'Herbalist Kit']
+
+                self.roleBox.clear()
+                for i in self.role_choice:
+                    self.roleBox.addItem(i)
+
                 self.role = self.char_data['Role']
                 self.role_not_chosen = False
                 self.roleBox.setCurrentIndex(self.role_choice.index(self.role))
                 self.roleBox.setDisabled(True)
+
+                if self.vampire_flag == False:
+                    self.cover_choice = ['Choose', 'Driver', 'Celebrity', 'Athlete', 'Journalist', 'Detective', 'Engineer', 'Actor', 'Psychologist', 'Security', 'Enforcer', 'Thief', 'Cop', 'Painter', 'Ambassador', 'Doctor', 'Fortune Teller']
+                    self.cover_bonus = ['', 'Agility', 'Beauty', 'Strength', 'Knowledge', 'Perception', 'Technology', 'Charisma', 'Empathy', 'Focus', 'Boxing', 'Melee', 'Ranged', 'Art', 'Languages', 'Science', 'Clairvoyance']
+                    self.cover_clothes = ['', 'Cheap Suit', 'Fashionable Clothing', 'Track Suit', 'Cheap Suit', 'Plain Clothes', 'Denim Outfit', 'Fashionable Clothing', 'Nice Suit', 'Uniform', 'Dark Clothes', 'Plain Clothes', 'Uniform', 'Fashionable Clothes', 'Uniform', 'Dark Clothes', 'Uniform', 'Fashionable Clothing', 'Nice Suit', 'Medical Uniform', 'Beatnik Outfit']
+                else:
+                    if self.cult == 'Boeotian Club':
+                        self.cover_choice = ['Choose', 'Dancer', 'Model', 'Teacher', 'Critic', 'Radio D. J.', 'Lawyer', 'Author', 'Wrestler', 'Fencer', 'Archer', 'Producer', 'Historian', 'Inventor', 'Gambler', 'Spy', 'Stage Magician']
+                        self.cover_bonus = ['', 'Agility', 'Beauty', 'Knowledge', 'Perception', 'Technology', 'Charisma', 'Empathy', 'Boxing', 'Melee', 'Ranged', 'Art', 'Languages', 'Science', 'Clairvoyance', 'Telepathy', 'Psychokinesis']
+                        self.cover_clothes = ['', 'Cheap Suit', 'Fashionable Clothing', 'Track Suit', 'Cheap Suit', 'Plain Clothes', 'Denim Outfit', 'Fashionable Clothing', 'Nice Suit', 'Uniform', 'Dark Clothes', 'Plain Clothes', 'Uniform', 'Fashionable Clothes', 'Uniform', 'Dark Clothes', 'Uniform', 'Fashionable Clothing', 'Nice Suit', 'Medical Uniform', 'Beatnik Outfit']
+                    if self.cult == 'Hantu Belian':
+                        self.cover_choice = ['Choose', 'Gymnast', 'Stripper', 'Trainer', 'Researcher', 'Burglar', 'Mechanic', 'Hustler', 'Therapist', 'Monk', 'Boxer', 'Collector', 'Translator', 'Psychiatrist']
+                        self.cover_bonus = ['', 'Agility', 'Beauty', 'Strength', 'Knowledge', 'Perception', 'Technology', 'Charisma', 'Empathy', 'Focus', 'Boxing', 'Art', 'Languages', 'Science']
+                        self.cover_clothes = ['', 'Cheap Suit', 'Fashionable Clothing', 'Track Suit', 'Cheap Suit', 'Plain Clothes', 'Denim Outfit', 'Fashionable Clothing', 'Nice Suit', 'Uniform', 'Dark Clothes', 'Plain Clothes', 'Uniform', 'Fashionable Clothes', 'Uniform', 'Dark Clothes', 'Uniform', 'Fashionable Clothing', 'Nice Suit', 'Medical Uniform', 'Beatnik Outfit']
+                    if self.cult == 'Goddess Cult':
+                        self.cover_choice = ['Choose', 'Driver', 'Celebrity', 'Athlete', 'Journalist', 'Detective', 'Engineer', 'Actor', 'Psychologist', 'Security', 'Enforcer', 'Thief', 'Cop', 'Painter', 'Ambassador', 'Doctor', 'Fortune Teller']
+                        self.cover_bonus = ['', 'Agility', 'Beauty', 'Strength', 'Knowledge', 'Perception', 'Technology', 'Charisma', 'Empathy', 'Focus', 'Boxing', 'Melee', 'Ranged', 'Art', 'Languages', 'Science', 'Clairvoyance']
+                        self.cover_clothes = ['', 'Cheap Suit', 'Fashionable Clothing', 'Track Suit', 'Cheap Suit', 'Plain Clothes', 'Denim Outfit', 'Fashionable Clothing', 'Nice Suit', 'Uniform', 'Dark Clothes', 'Plain Clothes', 'Uniform', 'Fashionable Clothes', 'Uniform', 'Dark Clothes', 'Uniform', 'Fashionable Clothing', 'Nice Suit', 'Medical Uniform', 'Beatnik Outfit']
+
+                self.coverBox.clear()
+                for i in self.cover_choice:
+                    self.coverBox.addItem(i)
+
                 self.cover = self.char_data['Cover']
                 self.cover_not_chosen = False
                 self.coverBox.setCurrentIndex(self.cover_choice.index(self.cover))
                 self.coverBox.setDisabled(True)
+
                 self.xpEdit.setDisabled(False)
                 self.bodyScore.setValue(self.char_data['BODY'])
                 self.bodyScore.setDisabled(True)
@@ -5917,11 +7131,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.is_divine = self.char_data['Is_Divine']
                 self.is_occult = self.char_data['Is_Occult']
                 self.is_psionic = self.char_data['Is_Psionic']
-                self.is_vampire = self.char_data['Is_Vampire']
+                
+                if self.vampire_flag == True:
+                    if self.cult == 'Boeotian Club':
+                        self.enc = 3
+                        self.mov = 2
+                        self.ran = 5
+                    if self.cult == 'Hantu Belian' or self.cult == 'Goddess Cult':
+                        self.enc = 1
+                        self.mov = 1
+                        self.ran = 1
+                else:
+                    self.enc = 1
+                    self.mov = 1
+                    self.ran = 1
                 red_flag = False
-                temp_encumbrance = 1 + self.bodyScore.value() + self.strengthSkill.value()
-                temp_movement = 1 + self.bodyScore.value() + self.agilitySkill.value()
-                temp_range = 1 + self.bodyScore.value() + self.strengthSkill.value()
+                temp_encumbrance = self.enc + self.bodyScore.value() + self.strengthSkill.value()
+                temp_movement = self.mov + self.bodyScore.value() + self.agilitySkill.value()
+                temp_range = self.ran + self.bodyScore.value() + self.strengthSkill.value()
                 if int(self.healthDisplay.text()) > 1 and not self.encumbered_flag:
                     log.debug('Character can move fine.')
                 elif int(self.healthDisplay.text()) == 1:
@@ -5951,6 +7178,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.movementDisplay.setText(str(temp_movement) + ' spaces')
                     self.rangeDisplay.setText(str(temp_range) + ' miles')
                 self.encumbered_checkBox.setDisabled(False)
+                if self.vampire_flag == True and self.cult == 'Boeotian Club' and self.psychokinesisSkill.value() > 0:
+                    self.flightDisplay.setText(str(self.spiritScore.value() + self.psychokinesisSkill.value()))
+                else:
+                    self.flightDisplay.setText('')
                 self.armorDisplay.setPlainText(self.char_data['ARMOR'])
                 self.weaponDisplay.setPlainText(self.char_data['WEAPON'])
                 self.itemsDisplay.setPlainText(self.char_data['ITEMS'])
@@ -5964,7 +7195,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.xpEdit.setText(str(self.char_xp))
                 self.level_achieved = self.char_data['Level_Achieved']
                 self.next_level = self.char_data['Next_Level']
-                print('Loaded', self.level_achieved)
+                self.loading_character = True
+                self.vampire_checkBox.setChecked(self.vampire_flag)
+                if self.vampire_flag == False:
+                    if self.char_level >= 3:
+                        if self.cult == 'Goddess Cult':
+                            self.vampireLabel.setText('Druidess Council?')
+                        else:
+                            self.vampireLabel.setText('Vampire?')
+                        self.vampire_checkBox.setDisabled(False)
+                    else:
+                        self.vampireLabel.setText('')
+                        self.vampire_checkBox.setDisabled(True)
+                else:
+                    if self.cult == 'Goddess Cult':
+                        self.vampireLabel.setText('Druidess Council?')
+                    else:
+                        self.vampireLabel.setText('Vampire?')
+                    self.vampire_checkBox.setDisabled(True)
+                self.loading_character = False
                 self.saveButton.setDisabled(False)
                 self.actionSave.setDisabled(False)
                 self.printButton.setDisabled(False)
@@ -5991,11 +7240,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.char_data['Reward'] = self.rewardDisplay.text()
             self.char_data['Is_Martial'] = self.is_martial
             self.char_data['Is_Divine'] = self.is_divine
+            if self.demonologySkill.value() > 0 or self.metamorphosisSkill.value() > 0 or self.necromancySkill.value() > 0:
+                self.is_occult = True
             self.char_data['Is_Occult'] = self.is_occult
             if self.clairvoyanceSkill.value() > 0 or self.psychokinesisSkill.value() > 0 or self.telepathySkill.value() > 0:
                 self.is_psionic = True
             self.char_data['Is_Psionic'] = self.is_psionic
-            self.char_data['Is_Vampire'] = self.is_vampire
+            self.char_data['Is_Vampire'] = self.vampire_flag
             self.char_data['Encumbered'] = self.encumbered_flag
             self.char_data['BODY'] = self.bodyScore.value()
             self.char_data['MIND'] = self.mindScore.value()
@@ -6084,7 +7335,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pdf.ln()
         pdf.cell(txt='Cult: ' + self.cult + '        Role: ' + self.role)
         pdf.ln()
-        pdf.cell(txt='Cover: ' + self.cover)
+        if self.cult == 'Goddess Cult':
+            temp_vamp1 = 'Druidess Council'
+        else:
+            temp_vamp1 = 'Vampire'
+        if self.vampire_flag == False:
+            temp_vamp2 = 'No'
+        else:
+            temp_vamp2 = 'Yes'
+        pdf.cell(txt='Cover: ' + self.cover + '        ' + temp_vamp1 + ': ' + temp_vamp2)
         pdf.ln()
         pdf.cell(txt='Reward: ' + str(self.rewardDisplay.text()) + '        Level: ' + str(self.char_level) + '        XP: ' + str(self.char_xp))
         pdf.ln()
@@ -6092,12 +7351,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pdf.ln()
         pdf.cell(txt='     Limits')
         pdf.ln()
-        pdf.cell(txt='ENCUMBRANCE: ' + str(1 + self.bodyScore.value() + self.strengthSkill.value()))
+        pdf.cell(txt='ENCUMBRANCE: ' + str(self.enc + self.bodyScore.value() + self.strengthSkill.value()))
         pdf.ln()
-        pdf.cell(txt='MOVE/COMBAT: ' + str(1 + self.bodyScore.value() + self.agilitySkill.value()))
+        pdf.cell(txt='MOVE/COMBAT: ' + str(self.mov + self.bodyScore.value() + self.agilitySkill.value()))
         pdf.ln()
-        pdf.cell(txt='MOVE/TRAVEL: ' + str(1 + self.bodyScore.value() + self.strengthSkill.value()))
+        pdf.cell(txt='MOVE/TRAVEL: ' + str(self.ran + self.bodyScore.value() + self.strengthSkill.value()))
         pdf.ln()
+        if self.vampire_flag == True and self.cult == 'Boeotian Club' and self.psychokinesisSkill.value() > 0:
+            pdf.cell(txt='MOVE/FLIGHT: ' + str(self.spiritScore.value() + self.psychokinesisSkill.value()))
+            pdf.ln()
         pdf.cell(txt=' ')
         pdf.ln()
         pdf.cell(txt='     Attributes')

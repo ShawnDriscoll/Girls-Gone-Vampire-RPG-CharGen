@@ -34,13 +34,7 @@ Requirements
 * **fpdf2 2.7.5**
 
   Fpdf2 is needed for printing the character sheets.
-   
 
-
-Not Using Python?
------------------
-
-You can always run the .EXE version for Windows 10 and 11 if you don't have the Python language installed.
 
 .. |ss| raw:: html
 
@@ -59,7 +53,7 @@ Things To-Do
 |ss|
 
 | Make a GGV module.
-| EXE version needs to save PDFs.
+| End support for EXE binaries.
 | Move PDF character sheets closer to program folder.
 | Add Encumbrance rules from Rocket Cadets in the 11th Dimension!
 | Start on a To-Do.
@@ -67,6 +61,15 @@ Things To-Do
 |se|
 
 **Known History**
+
+* v0.1.0b
+
+  Boeotian Club initiates can become psychic vampires.
+  Hantu Belian Society female initiates can become were-cats.
+  Hantu Belian Society male initiates can decide to leave (for a Personality Cult).
+  Goddess Cult initiates can become junior members of the Druidess Council.
+
+  Character sheets report if characters are vampires or not.
 
 * v0.0.1b
 
