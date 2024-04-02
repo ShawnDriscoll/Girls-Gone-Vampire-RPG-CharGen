@@ -60,7 +60,8 @@ Things To-Do
 
 |se|
 
-**Known History**
+Known History
+-------------
 
 * v0.1.0b
 
