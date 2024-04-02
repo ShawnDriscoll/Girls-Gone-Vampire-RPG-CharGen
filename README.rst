@@ -38,6 +38,8 @@ Requirements
 Things To-Do
 ------------
 
+When there is time.
+
 .. |ss| raw:: html
 
     <strike>
