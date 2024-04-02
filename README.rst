@@ -38,8 +38,6 @@ Requirements
 Things To-Do
 ------------
 
-When there is time.
-
 .. |ss| raw:: html
 
     <strike>
@@ -51,6 +49,7 @@ When there is time.
 | Continue unifying the skills across all TPS genres.
 | Instruction manual.
 | Cheat codes.
+
 |ss|
 
 | Make a GGV module.
