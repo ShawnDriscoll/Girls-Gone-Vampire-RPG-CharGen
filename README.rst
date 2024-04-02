@@ -1,5 +1,5 @@
 **Girls Gone Vampire RPG Character Generator**
-=============================================
+==============================================
 
 .. figure:: images/ggv.png
 
