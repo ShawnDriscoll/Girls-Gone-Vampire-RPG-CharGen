@@ -46,13 +46,10 @@ Things To-Do
 Known History
 -------------
 
-* v0.3.0b
-
-  Added encumbrance for vampires in flight for the Utopian Legion cult.
-
 * v0.2.0b
 
   Added vampires for the Utopian Legion cult.
+  Added encumbrance for vampires in flight for the Utopian Legion cult.
 
 * v0.1.0b
 

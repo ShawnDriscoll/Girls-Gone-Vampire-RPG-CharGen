@@ -4,7 +4,7 @@
 #######################################################
 
 """
-GGV Chargen 0.3.0 Beta
+GGV Chargen 0.2.0 Beta
 -----------------------------------------------------------------------
 
 This program generates characters for the Girls Gone Vampire RPG.
@@ -26,7 +26,7 @@ from fpdf import FPDF
 from game_tools.pydice import roll
 
 __author__ = 'Shawn Driscoll <shawndriscoll@hotmail.com>\nshawndriscoll.blogspot.com'
-__app__ = 'GGV CharGen 0.3.0 (Beta)'
+__app__ = 'GGV CharGen 0.2.0 (Beta)'
 __expired_tag__ = False
 
 class aboutDialog(QDialog, Ui_aboutDialog):
