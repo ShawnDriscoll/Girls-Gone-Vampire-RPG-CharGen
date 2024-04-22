@@ -49,13 +49,17 @@ Known History
 * v0.2.0b
 
   Added vampires for the Utopian Legion cult.
+
   Added encumbrance for vampires in flight for the Utopian Legion cult.
 
 * v0.1.0b
 
   Boeotian Club initiates can become psychic vampires.
+
   Hantu Belian Society female initiates can become were-cats.
+
   Hantu Belian Society male initiates can decide to leave (for a Personality Cult).
+
   Goddess Cult initiates can become junior members of the Druidess Council.
 
   Character sheets report if characters are vampires or not.
